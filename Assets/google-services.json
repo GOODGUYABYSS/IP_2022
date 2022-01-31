@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "73050284843",
+    "firebase_url": "https://ip-2022-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ip-2022",
+    "storage_bucket": "ip-2022.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:73050284843:android:ba289a00d112d9edf65b6e",
+        "android_client_info": {
+          "package_name": "com.NP.LUCRE"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "73050284843-vallk422ma5ccgjv8tks313qguvn1j6h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCf9rYGRQ6zNwqxecs4HvpBhuTJWqf-jY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "73050284843-vallk422ma5ccgjv8tks313qguvn1j6h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
