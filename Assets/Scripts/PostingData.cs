@@ -4,10 +4,12 @@ using UnityEngine;
 using Firebase.Database;
 using Firebase.Extensions;
 using TMPro;
+using System;
 
 public class PostingData : MonoBehaviour
 {
     public DatabaseReference dbReference;
+    public RetrievingData retrievingData;
 
     public static bool anotherLoginPostingData = true;
     public string userId;
@@ -50,6 +52,15 @@ public class PostingData : MonoBehaviour
 
         goalContent.GetComponent<TMP_InputField>().text = "";
         howToAchieve.GetComponent<TMP_InputField>().text = "";
+
+        if (!RetrievingData.mission1Completed)
+        {
+            UpdateMission1Completed();
+            RetrievingData.mission1Completed = true;
+        }
+
+        // retrieve goals again
+        retrievingData.RetrieveGoals();
     }
 
     public void CreateNewGoal(string uuid, string goalContent, string howToAchieve)
@@ -61,32 +72,59 @@ public class PostingData : MonoBehaviour
         dbReference.Child("currentGoals/" + uuid + "/" + key).SetRawJsonValueAsync(createGoals.GoalsToJson());
     }
 
-    public void UpdateUsefulBuildingCount(int usefulBuildingCount, int totalBuildingCount)
+    public void UpdateUsefulBuildingCount()
     {
-        dbReference.Child("playerStats/" + userId + "usefulBuildingCount").SetValueAsync(usefulBuildingCount);
-        dbReference.Child("playerStats/" + userId + "totalBuildingCount").SetValueAsync(totalBuildingCount);
+        dbReference.Child("playerStats/" + userId + "/usefulBuildingCount").SetValueAsync(RetrievingData.usefulBuildingCount);
+        dbReference.Child("playerStats/" + userId + "/totalBuildingCount").SetValueAsync(RetrievingData.totalBuildingCount);
+
+        // update leaderboard
+        retrievingData.GetLeaderboard();
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
     }
 
-    public void UpdateUselessBuildingCount(int uselessBuildingCount, int totalBuildingCount)
+    public void UpdateUselessBuildingCount()
     {
-        dbReference.Child("playerStats/" + userId + "uselessBuildingCount").SetValueAsync(uselessBuildingCount);
-        dbReference.Child("playerStats/" + userId + "totalBuildingCount").SetValueAsync(totalBuildingCount);
+        dbReference.Child("playerStats/" + userId + "/uselessBuildingCount").SetValueAsync(RetrievingData.uselessBuildingCount);
+        dbReference.Child("playerStats/" + userId + "/totalBuildingCount").SetValueAsync(RetrievingData.totalBuildingCount);
+
+        // update leaderboard
+        retrievingData.GetLeaderboard();
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
     }
 
-    public void UpdateCredits(int newCreditsValue)
+    public void UpdateCredits()
     {
         // takes in new value of money and updates database
-        dbReference.Child("playerStats/" + userId + "/credits").SetValueAsync(newCreditsValue);
+        dbReference.Child("playerStats/" + userId + "/credits").SetValueAsync(RetrievingData.credits);
+
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
 
     }
 
     public void UpdateMission1Completed()
     {
         dbReference.Child("playerStats/" + userId + "/mission1Completed").SetValueAsync(true);
+
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
     }
 
     public void UpdateMission2Completed()
     {
         dbReference.Child("playerStats/" + userId + "/mission2Completed").SetValueAsync(true);
+
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
+    }
+
+    public void UpdatePlayerStatsTimestamp()
+    {
+        // timestamp properties
+        var timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+
+        dbReference.Child("players/" + userId + "/updatedOn").SetValueAsync(timestamp);
     }
 }

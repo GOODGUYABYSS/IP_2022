@@ -15,17 +15,34 @@ public class RetrievingData : MonoBehaviour
 
     public string userId;
 
+    public static int credits;
+
     public Dictionary<string, string> goalsAndKeys = new Dictionary<string, string>();
     public Dictionary<string, string> goalsAndHowToAchieve = new Dictionary<string, string>();
 
-    public List<string> userIdsList = new List<string>();
-    public List<int> leaderboardList = new List<int>();
+    public List<string> usernameList = new List<string>();
+    public List<string> totalBuildingCountList = new List<string>();
 
+    public static int numberOfGoalsCompleted;
     [SerializeField]
-    int numberOfGoalsCompleted, newNumberOfGoalsCompleted;
+    private int newNumberOfGoalsCompleted;
+
+    // see if it needs to be static ASK JASLYN
+    public string mission1Content;
+    public string mission2Content;
+
+    public static bool mission1Completed;
+    public static bool mission2Completed;
+
+    public static int totalBuildingCount;
+    public static int usefulBuildingCount;
+    public static int uselessBuildingCount;
 
     public GameObject rowPrefab;
     public Transform tableContent;
+
+    public GameObject leaderboardPrefab;
+    public Transform leaderboardTable;
 
     private void Awake()
     {
@@ -35,7 +52,7 @@ public class RetrievingData : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        
     }
 
     // Update is called once per frame
@@ -45,19 +62,57 @@ public class RetrievingData : MonoBehaviour
         {
             userId = Authentication.userId;
 
-            // reset variables
-            goalsAndKeys.Clear();
-            goalsAndHowToAchieve.Clear();
+            usernameList.Clear();
+            totalBuildingCountList.Clear();
 
-            userIdsList.Clear();
-            leaderboardList.Clear();
-
-            numberOfGoalsCompleted = 0;
+            // reset new number of goals completed
             newNumberOfGoalsCompleted = 0;
+
+            // retrieve the relevant player data
+            RetrieveNumberOfGoalsCompleted();
+
+            RetrieveCredits();
+
+            RetrieveMission1Content();
+            RetrieveMission2Content();
+
+            RetrieveMisson1Status();
+            RetrieveMisson2Status();
+
+            RetrieveGoals();
+
+            RetrieveTotalBuildingCount();
+            RetrieveUsefulBuildingCount();
+            RetrieveUselessBuildingCount();
+
+            GetLeaderboard();
 
             // stop the loop
             anotherLoginRetrievingData = false;
         }
+    }
+
+    public void RetrieveCredits()
+    {
+        dbReference.Child("playerStats/" + userId + "/credits").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    string result = snapshot.Value.ToString();
+                    credits = int.Parse(result);
+                }
+            }
+        });
     }
 
     public void RetrieveGoals()
@@ -95,7 +150,6 @@ public class RetrievingData : MonoBehaviour
                     }
                 }
 
-                RetrieveNumberOfGoalsCompleted();
                 // update the My Goals UI
                 UpdateGoalsList();
             }
@@ -166,7 +220,7 @@ public class RetrievingData : MonoBehaviour
             // add functions to the buttons of the instantiated prefab
             buttonDetails[0].onClick.AddListener(delegate() { EditGoal(buttonDetails[0].gameObject); });
             buttonDetails[1].onClick.AddListener(delegate () { ConfirmEditGoal(pushKey, buttonDetails[0].gameObject, buttonDetails[1].gameObject); });
-            buttonDetails[2].onClick.AddListener(delegate () { GoalCompleted(pushKey, buttonDetails[2].gameObject, numberOfGoalsCompleted); });
+            buttonDetails[2].onClick.AddListener(delegate () { GoalCompleted(pushKey, buttonDetails[2].gameObject); });
         }
 
         // hide the original prefab so that the result will only display data from firebase
@@ -259,13 +313,14 @@ public class RetrievingData : MonoBehaviour
         editButton.GetComponentInChildren<TMP_Text>().text = "Edit";
     }
 
-    public void GoalCompleted(string key, GameObject doneButton, int oldNumberOfGoalsCompleted)
+    public void GoalCompleted(string key, GameObject doneButton)
     {
         // reference to the parent object to get data on sibling gameobjects
         GameObject tempParent = doneButton.transform.parent.gameObject;
 
         // increase the number of goals completed
-        newNumberOfGoalsCompleted = oldNumberOfGoalsCompleted + 1;
+        newNumberOfGoalsCompleted = numberOfGoalsCompleted + 1;
+        numberOfGoalsCompleted = newNumberOfGoalsCompleted;
 
         // destroy gameobject in the game to update UI
         Destroy(tempParent);
@@ -276,14 +331,180 @@ public class RetrievingData : MonoBehaviour
         // post updated number of completed goals to firebase
         dbReference.Child("playerStats/" + userId + "/numberOfGoalsCompleted").SetValueAsync(newNumberOfGoalsCompleted);
 
+        // timestamp properties
+        var timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+        // update playerStats updatedOn timestamp
+        dbReference.Child("players/" + userId + "/updatedOn").SetValueAsync(timestamp);
+
+        RetrieveNumberOfGoalsCompleted();
+    }
+
+    public void RetrieveMission1Content()
+    {
+        dbReference.Child("missionContent/mission1").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    mission1Content = snapshot.Value.ToString();
+                }
+            }
+        });
+    }
+
+    public void RetrieveMission2Content()
+    {
+        dbReference.Child("missionContent/mission2").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    mission2Content = snapshot.Value.ToString();
+                }
+            }
+        });
+    }
+
+    public void RetrieveMisson1Status()
+    {
+        dbReference.Child("playerStats/" + userId + "/mission1Completed").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    string result = snapshot.Value.ToString();
+                    mission1Completed = Convert.ToBoolean(result);
+                }
+            }
+        });
+    }
+
+    public void RetrieveMisson2Status()
+    {
+        dbReference.Child("playerStats/" + userId + "/mission2Completed").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    string result = snapshot.Value.ToString();
+                    mission2Completed = Convert.ToBoolean(result);
+                }
+            }
+        });
+    }
+
+    public void RetrieveTotalBuildingCount()
+    {
+        dbReference.Child("playerStats/" + userId + "/totalBuildingCount").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    string result = snapshot.Value.ToString();
+                    totalBuildingCount = int.Parse(result);
+                }
+            }
+        });
+    }
+
+    public void RetrieveUsefulBuildingCount()
+    {
+        dbReference.Child("playerStats/" + userId + "/usefulBuildingCount").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    string result = snapshot.Value.ToString();
+                    usefulBuildingCount = int.Parse(result);
+                }
+            }
+        });
+    }
+
+    public void RetrieveUselessBuildingCount()
+    {
+        dbReference.Child("playerStats/" + userId + "/uselessBuildingCount").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    string result = snapshot.Value.ToString();
+                    uselessBuildingCount = int.Parse(result);
+                }
+            }
+        });
     }
 
     public void GetLeaderboard()
     {
-        userIdsList.Clear();
-        leaderboardList.Clear();
+        // reset the variable before retrieving from firebase
+        usernameList.Clear();
+        totalBuildingCountList.Clear();
 
-        dbReference.Child("playerStats").OrderByChild("buildingsCount").LimitToLast(10).GetValueAsync().ContinueWithOnMainThread(task =>
+        dbReference.Child("playerStats").OrderByChild("totalBuildingCount").LimitToLast(10).GetValueAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted || task.IsCanceled)
             {
@@ -299,14 +520,52 @@ public class RetrievingData : MonoBehaviour
                 {
                     foreach (var child in snapshot.Children)
                     {
-                        string id = child.Key;
-                        userIdsList.Add(id);
+                        string username = child.Child("username").Value.ToString();
+                        usernameList.Add(username);
 
-                        string tempScore = child.Child("buildingsCount").Value.ToString();
-                        leaderboardList.Add(int.Parse(tempScore));
+                        string tempScore = child.Child("totalBuildingCount").Value.ToString();
+                        totalBuildingCountList.Add(tempScore);
                     }
+
+                    usernameList.Reverse();
+                    totalBuildingCountList.Reverse();
+
+                    UpdateLeaderboard();
                 }
             }
         });
+    }
+
+    public void UpdateLeaderboard()
+    {
+        leaderboardPrefab.SetActive(true);
+        int rankCounter = 1;
+
+        // clear the table
+        foreach (Transform item in leaderboardTable)
+        {
+            // DO NOT DELETE ORIGINAL PREFAB
+            if (item.name != "leaderboard")
+            {
+                Destroy(item.gameObject);
+            }
+        }
+
+        for (int i = 0; i < usernameList.Count; i++)
+        {
+            // clone prefab
+            GameObject entry = Instantiate(leaderboardPrefab, leaderboardTable);
+
+            // get component of TEXTMESHPROGUI
+            TextMeshProUGUI[] leaderboardDetails = entry.GetComponentsInChildren<TextMeshProUGUI>();
+
+            leaderboardDetails[0].text = rankCounter.ToString();
+            leaderboardDetails[1].text = usernameList[i];
+            leaderboardDetails[2].text = totalBuildingCountList[i];
+
+            rankCounter++;
+        }
+
+        leaderboardPrefab.SetActive(false);
     }
 }

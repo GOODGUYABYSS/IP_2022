@@ -183,6 +183,13 @@ public class Authentication : MonoBehaviour
             userId = "";
             PostingData.anotherLoginPostingData = true;
             RetrievingData.anotherLoginRetrievingData = true;
+            RetrievingData.credits = 0;
+            RetrievingData.numberOfGoalsCompleted = 0;
+            RetrievingData.mission1Completed = false;
+            RetrievingData.mission2Completed = false;
+            RetrievingData.totalBuildingCount = 0;
+            RetrievingData.usefulBuildingCount = 0;
+            RetrievingData.uselessBuildingCount = 0;
 
             Debug.Log("User has been logged out");
         }
