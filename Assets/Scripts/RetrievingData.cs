@@ -68,9 +68,6 @@ public class RetrievingData : MonoBehaviour
             // retrieve the player data
             RetrievePlayerStats();
 
-            RetrieveMission1Content();
-            RetrieveMission2Content();
-
             RetrieveGoals();
 
             GetLeaderboard();
@@ -332,57 +329,13 @@ public class RetrievingData : MonoBehaviour
         RetrieveNumberOfGoalsCompleted();
     }
 
-    public void RetrieveMission1Content()
-    {
-        dbReference.Child("missionContent/mission1").GetValueAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-                return;
-            }
-
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-
-                if (snapshot.Exists)
-                {
-                    mission1Content = snapshot.Value.ToString();
-                }
-            }
-        });
-    }
-
-    public void RetrieveMission2Content()
-    {
-        dbReference.Child("missionContent/mission2").GetValueAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-                return;
-            }
-
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-
-                if (snapshot.Exists)
-                {
-                    mission2Content = snapshot.Value.ToString();
-                }
-            }
-        });
-    }
-
     public void GetLeaderboard()
     {
         // reset the variable before retrieving from firebase
         usernameList.Clear();
         totalBuildingCountList.Clear();
 
-        dbReference.Child("playerStats").OrderByChild("totalBuildingCount").LimitToLast(10).GetValueAsync().ContinueWithOnMainThread(task =>
+        dbReference.Child("playerStats").OrderByChild("totalBuildingCount").LimitToLast(3).GetValueAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted || task.IsCanceled)
             {
