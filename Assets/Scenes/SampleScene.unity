@@ -2110,7 +2110,10 @@ MonoBehaviour:
   userId: 
   usernameList: []
   totalBuildingCountList: []
-  numberOfGoalsCompleted: 0
+  storeNameList: []
+  storeDescriptionList: []
+  storePowerUpList: []
+  storePriceList: 
   newNumberOfGoalsCompleted: 0
   mission1Content: 
   mission2Content: 
@@ -2418,7 +2421,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &737397703
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2485,7 +2488,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 580560819}
         m_TargetAssemblyTypeName: RetrievingData, Assembly-CSharp
-        m_MethodName: GetLeaderboard
+        m_MethodName: RetrieveStoreThings
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

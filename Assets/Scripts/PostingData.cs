@@ -127,4 +127,18 @@ public class PostingData : MonoBehaviour
 
         dbReference.Child("players/" + userId + "/updatedOn").SetValueAsync(timestamp);
     }
+
+    public void CreateBuildingData(string uuid, float[] transformPosition, float[] transformRotation, float[] transformScale, string buildingType, string meshId, float buildingId, int[] cellLocation = null)
+    {
+        BuildingData createBuildingData = new BuildingData(transformPosition, transformRotation, transformScale, meshId, buildingType, buildingId, cellLocation);
+
+        string key = dbReference.Child(uuid).Push().Key;
+
+        dbReference.Child("buildingData/" + uuid + "/" + key).SetRawJsonValueAsync(createBuildingData.BuildingDataToJson());
+    }
+
+    public void PostingBuildingData()
+    {
+        
+    }
 }

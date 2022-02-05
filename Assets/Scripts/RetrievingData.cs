@@ -62,28 +62,16 @@ public class RetrievingData : MonoBehaviour
         {
             userId = Authentication.userId;
 
-            usernameList.Clear();
-            totalBuildingCountList.Clear();
-
             // reset new number of goals completed
             newNumberOfGoalsCompleted = 0;
 
-            // retrieve the relevant player data
-            RetrieveNumberOfGoalsCompleted();
-
-            RetrieveCredits();
+            // retrieve the player data
+            RetrievePlayerStats();
 
             RetrieveMission1Content();
             RetrieveMission2Content();
 
-            RetrieveMisson1Status();
-            RetrieveMisson2Status();
-
             RetrieveGoals();
-
-            RetrieveTotalBuildingCount();
-            RetrieveUsefulBuildingCount();
-            RetrieveUselessBuildingCount();
 
             GetLeaderboard();
 
@@ -92,9 +80,9 @@ public class RetrievingData : MonoBehaviour
         }
     }
 
-    public void RetrieveCredits()
+    public void RetrievePlayerStats()
     {
-        dbReference.Child("playerStats/" + userId + "/credits").GetValueAsync().ContinueWithOnMainThread(task =>
+        dbReference.Child("playerStats/" + userId).GetValueAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted || task.IsCanceled)
             {
@@ -108,8 +96,13 @@ public class RetrievingData : MonoBehaviour
 
                 if (snapshot.Exists)
                 {
-                    string result = snapshot.Value.ToString();
-                    credits = int.Parse(result);
+                    credits = int.Parse(snapshot.Child("credits").Value.ToString());
+                    mission1Completed = Convert.ToBoolean(snapshot.Child("mission1Completed").Value.ToString());
+                    mission2Completed = Convert.ToBoolean(snapshot.Child("mission2Completed").Value.ToString());
+                    numberOfGoalsCompleted = int.Parse(snapshot.Child("numberOfGoalsCompleted").Value.ToString());
+                    totalBuildingCount = int.Parse(snapshot.Child("totalBuildingCount").Value.ToString());
+                    usefulBuildingCount = int.Parse(snapshot.Child("usefulBuildingCount").Value.ToString());
+                    uselessBuildingCount = int.Parse(snapshot.Child("uselessBuildingCount").Value.ToString());
                 }
             }
         });
@@ -378,121 +371,6 @@ public class RetrievingData : MonoBehaviour
                 if (snapshot.Exists)
                 {
                     mission2Content = snapshot.Value.ToString();
-                }
-            }
-        });
-    }
-
-    public void RetrieveMisson1Status()
-    {
-        dbReference.Child("playerStats/" + userId + "/mission1Completed").GetValueAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-                return;
-            }
-
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-
-                if (snapshot.Exists)
-                {
-                    string result = snapshot.Value.ToString();
-                    mission1Completed = Convert.ToBoolean(result);
-                }
-            }
-        });
-    }
-
-    public void RetrieveMisson2Status()
-    {
-        dbReference.Child("playerStats/" + userId + "/mission2Completed").GetValueAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-                return;
-            }
-
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-
-                if (snapshot.Exists)
-                {
-                    string result = snapshot.Value.ToString();
-                    mission2Completed = Convert.ToBoolean(result);
-                }
-            }
-        });
-    }
-
-    public void RetrieveTotalBuildingCount()
-    {
-        dbReference.Child("playerStats/" + userId + "/totalBuildingCount").GetValueAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-                return;
-            }
-
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-
-                if (snapshot.Exists)
-                {
-                    string result = snapshot.Value.ToString();
-                    totalBuildingCount = int.Parse(result);
-                }
-            }
-        });
-    }
-
-    public void RetrieveUsefulBuildingCount()
-    {
-        dbReference.Child("playerStats/" + userId + "/usefulBuildingCount").GetValueAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-                return;
-            }
-
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-
-                if (snapshot.Exists)
-                {
-                    string result = snapshot.Value.ToString();
-                    usefulBuildingCount = int.Parse(result);
-                }
-            }
-        });
-    }
-
-    public void RetrieveUselessBuildingCount()
-    {
-        dbReference.Child("playerStats/" + userId + "/uselessBuildingCount").GetValueAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-                return;
-            }
-
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-
-                if (snapshot.Exists)
-                {
-                    string result = snapshot.Value.ToString();
-                    uselessBuildingCount = int.Parse(result);
                 }
             }
         });
