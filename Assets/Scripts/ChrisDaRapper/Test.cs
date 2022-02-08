@@ -6,12 +6,25 @@ public class Test : MonoBehaviour
 {
     // public GameObject socketInteractorObj;
 
-    private Grid gridSpawner;
+    private delegate bool TestDelegate();
+
+    private TestDelegate testDelegateFunction;
+
+    private GridSystem gridSpawner;
     private Mesh mesh;
+
+    bool thing = false;
 
     private void Start()
     {
+        testDelegateFunction = () =>
+        {
+            return true;
+        };
 
+        thing = testDelegateFunction();
+
+        Debug.Log("thing: " + thing);
     }
 
     private void Hello(Test02 test02)
@@ -20,5 +33,4 @@ public class Test : MonoBehaviour
 
         string name = mesh.name;
     }
-
 }

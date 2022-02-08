@@ -185,4 +185,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3758b18f8c9a1c4ba131a0b661f7f12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allowCollisionDetection: 0
+  previousGameObj: {fileID: 0}
+  confirmPlacementButton: {fileID: 108980801650273104, guid: 78c035456bf7250448c09e18dfe6937f, type: 3}

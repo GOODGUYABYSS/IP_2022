@@ -14,8 +14,14 @@ public class PostingData : MonoBehaviour
     public static bool anotherLoginPostingData = true;
     public string userId;
 
+    public static bool allowPostingData;
+
     [SerializeField]
     GameObject goalContent, howToAchieve;
+
+    private bool allowDataCreation = false;
+
+    public GameObject confirmPlacementButton;
 
     private void Awake()
     {
@@ -36,6 +42,14 @@ public class PostingData : MonoBehaviour
             userId = Authentication.userId;
             anotherLoginPostingData = false;
         }
+
+        if (allowDataCreation)
+        {
+            CreateBuildingData(userId);
+            allowDataCreation = false;
+        }
+
+        // PostingBuildingData();
     }
 
     public void CreateNewGoalButton()
@@ -128,9 +142,13 @@ public class PostingData : MonoBehaviour
         dbReference.Child("players/" + userId + "/updatedOn").SetValueAsync(timestamp);
     }
 
-    public void CreateBuildingData(string uuid, float[] transformPosition, float[] transformRotation, float[] transformScale, string buildingType, string meshId, float buildingId, int[] cellLocation = null)
+    public void CreateBuildingData(string uuid)
     {
-        BuildingData createBuildingData = new BuildingData(transformPosition, transformRotation, transformScale, meshId, buildingType, buildingId, cellLocation);
+        // BuildingData createBuildingData = new BuildingData(transformPosition, transformRotation, transformScale, meshId, buildingType, buildingId, cellLocation);
+
+        BuildingData createBuildingData = BuildingDescription.GenerateBuildingData(SocketInteractorFunctions.buildingGameObject);
+
+        // createBuildingData.storedInDatabase = true;
 
         string key = dbReference.Child(uuid).Push().Key;
 
@@ -139,6 +157,86 @@ public class PostingData : MonoBehaviour
 
     public void PostingBuildingData()
     {
-        
+        // if (SocketInteractorFunctions.counter == 1)
+        // {
+
+        DeleteBuildingData();
+
+        UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.SetActive(false);
+
+        // DeleteBuildingData();
+        // 
+        // CreateBuildingData(userId);
+
+        // SocketInteractorFunctions.counter = 2;
+        // }
+        // Delete previous entry
+        // Turn off button.
     }
+
+    private void DeleteBuildingData()
+    {
+        Debug.Log("SocketInteractorFunctions.buildingIdToDelete: " + SocketInteractorFunctions.buildingIdToDelete);
+
+        string parentName = "";
+
+        dbReference.Child("buildingData/" + Authentication.userId).GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCanceled || task.IsFaulted)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                Debug.Log("1");
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    Debug.Log("2");
+                    foreach (var child in snapshot.Children)
+                    {
+                        if (int.Parse(child.Child("buildingId").Value.ToString()) == SocketInteractorFunctions.buildingIdToDelete)
+                        {
+                            Debug.Log("int.Parse(child.Child(\"buildingId\").Value.ToString(): " + int.Parse(child.Child("buildingId").Value.ToString()));
+                            parentName = child.Child("buildingId").Reference.Parent.Key;
+                        }
+                        Debug.Log("parentName: " + parentName);
+
+                        if (parentName != "")
+                        {
+                            dbReference.Child("buildingData/" + Authentication.userId + "/" + parentName).SetValueAsync(null);
+                        }
+                    }
+
+                    allowDataCreation = true;
+
+                    Debug.Log("allowDataCreation: " + allowDataCreation);
+                }
+
+                else if (!snapshot.Exists)
+                {
+                    allowDataCreation = true;
+                    return;
+                }
+
+                // allowDataCreation = true;
+            }
+        });
+    }
+
+    // IEnumerator DeleteAndCreateBuildingData()
+    // {
+    //     DeleteBuildingData();
+    // 
+    //     yield return new WaitForSeconds(3f);
+    // 
+    //     if (allowDataCreation)
+    //     {
+    //         CreateBuildingData(userId);
+    //         allowDataCreation = false;
+    //     }
+    // }
 }

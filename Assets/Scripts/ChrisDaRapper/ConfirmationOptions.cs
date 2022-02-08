@@ -24,30 +24,7 @@ public class ConfirmationOptions
 
     public void ConfirmBuildingPlacement(bool confirmation)
     {
-        // This function should be placed on a button
-
-        // if (confirmation)
-        // {
-        //     if (buildingId.objectType == "GoalAddingBuilding")
-        //     {
-        //         Building.AddGoalAddingBuilding();
-        //     }
-        // 
-        //     else if (buildingId.objectType == "MoneyGeneratingBuilding")
-        //     {
-        //         Building.AddMoneyGenBuilding();
-        //     }
-        // 
-        //     else
-        //     {
-        //         Debug.LogError("Object is not a building but ConfirmBuildingPlacement() is still being used.");
-        //     }
-        // }
-        // 
-        // else
-        // {
-        //     buttonGroup.SetActive(false);
-        // }
+        
     }
 
     public void SetButtonGroup(GameObject buttonGroup)

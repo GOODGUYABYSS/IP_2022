@@ -4,40 +4,89 @@ using UnityEngine;
 
 public class SocketInteractorFunctions : MonoBehaviour
 {
-    public bool allowCollisionDetection;
+    public static bool allowCollisionDetection;
+
+    private bool allowEdit;
+
+    public static int counter = 0;
+    public static int counterExit = 0;
+
+    public static GameObject buildingGameObject;
+    public GameObject previousGameObj;
+
+    public static float buildingIdToDelete;
+
+    public GameObject confirmPlacementButton;
 
     public void AllowCollisionDetection()
     {
         allowCollisionDetection = true;
+        // don't allow other things to go here.
     }
 
     public void DisallowCollisionDetection()
     {
         allowCollisionDetection = false;
+        // allow other things to go here.
     }
 
     private void OnTriggerEnter(Collider collision)
     {
-        if (allowCollisionDetection)
+        // if (objectOfGame == collision.gameObject && !collision.gameObject.GetComponent<BuildingDescription>().cameFromDatabase)
+        // {
+        //     // This if statement resets counter to zero if a new object is put, which allows the new gameobject data to be sent to firebase.
+        //     // Without this if statement, then adding a new gameobject will just add more to the counter and won't trigger the PostingBuildingData() function in PostingData.cs.
+        //     counter = 0;
+        // }
+        // 
+        // // This below is used to check whether the gameobject data is allowed to be sent to the database.
+        // // The PostingBuildingData() function in the PostingData.cs script checks for this.
+        // counter += 1;
+        // 
+        // counterExit = 0;
+
+        // PostingData.allowPostingData = true;
+
+        if (allowCollisionDetection && previousGameObj != collision.gameObject)
         {
-            BuildingDescription buildingDescription = collision.gameObject.GetComponent<BuildingDescription>();
+            // Control.allowDisplayConfirmPlacementButton = true;
+            buildingGameObject = collision.gameObject;
+            previousGameObj = collision.gameObject;
 
-            BuildingData buildingData = buildingDescription.GenerateBuildingData();
+            // buildingIdToDelete = 0;
 
-            Control.allBuildingData.Add(buildingData);
-
-            Debug.Log("Control.allBuildingData.Count: " + Control.allBuildingData.Count);
+            Debug.Log("Entered");
         }
+
+        else if (allowCollisionDetection)
+        {
+            // Control.allowDisplayConfirmPlacementButton = true;
+        }
+
+        // activate confirmation options.
+        // Don't allow other things to go here.
     }
 
     private void OnTriggerExit(Collider collision)
     {
-        if (allowCollisionDetection)
-        {
-            RemoveBuildingFromList(collision);
+        // if (objectOfGame2 == collision.gameObject)
+        // {
+        //     counterExit = 0;
+        // }
+        // 
+        // collision.gameObject.GetComponent<BuildingDescription>().cameFromDatabase = false;
+        // 
+        // counterExit += 1;
+        // 
+        // counter = 0;
 
+        if (!allowCollisionDetection)
+        {
             Debug.Log("Exited");
+            buildingIdToDelete = collision.gameObject.GetComponent<ObjectId>().objectId;
+            Control.allowDisplayConfirmPlacementButton = true;
         }
+
     }
 
     private void RemoveBuildingFromList(Collider collision)

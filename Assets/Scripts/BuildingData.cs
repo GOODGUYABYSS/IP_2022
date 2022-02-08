@@ -9,22 +9,31 @@ public class BuildingData
 
     public static int numAllBuildings;
 
-    public static int numGoalAddingBuildings; // Useless
-    public static int numMoneyGenBuildings; // Useful
+    public static int numGoalAddingBuildings;
+    public static int numMoneyGenBuildings;
 
-    public readonly float[] transformPosition = new float[3];
-    public readonly float[] transformRotation = new float[3];
-    public readonly float[] transformScale = new float[3];
+    // The below 3 variables contain transform information about a building game object.
+    public float[] transformPosition = new float[3];
+    public float[] transformRotation = new float[3];
+    public float[] transformScale = new float[3];
 
+    // The below variable contains the location that the building is stored in the cell.
     public int[] cellLocation = new int[2];
 
+    // The below variable contains the building type. Each building type describes what the building can do. For example, "MoneyGeneratingBuilding" will generate money over time.
     public string buildingType;
+
+    // The below variable contains the mesh that the building will be using once loaded. The mesh is based on mesh name.
     public string meshId;
 
     public float buildingId;
 
+    // public bool storedInDatabase;
+
     public BuildingData(float[] transformPosition, float[] transformRotation, float[] transformScale, string buildingType, string meshId, float buildingId, int[] cellLocation = null)
     {
+        // This is the BuildingData object constructor.
+
         this.transformPosition = transformPosition;
         this.transformRotation = transformRotation;
         this.transformScale = transformScale;
@@ -37,11 +46,12 @@ public class BuildingData
 
     public BuildingData()
     {
-
+        // This is the BuildingData object constructor overload in case a programmer wants to create an empty BuildingData class and set the variables manually over time.
     }
 
     public string BuildingDataToJson()
     {
+        // This function converts this class to a Json format.
         return JsonUtility.ToJson(this);
     }
 }

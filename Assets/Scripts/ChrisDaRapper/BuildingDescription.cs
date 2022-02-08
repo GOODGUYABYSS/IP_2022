@@ -1,15 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Firebase.Database;
+using Firebase.Extensions;
 
 public class BuildingDescription : MonoBehaviour
 {
+    // The building description class contains information describing a building, but in Unity formats like Transform and Vector3.
+    // This class is meant to be a component in its respective game object and stores unique information about it, which is why it derives from the MonoBehaviour class.
+
+    public bool cameFromDatabase = false;
+
     public BuildingDescription()
     {
-
+        // This is the BuildingDescription object constructor.
+        // Warning: Only create a BuildingDescription class if it is a component of an existing building game object.
     }
 
-    public BuildingData GenerateBuildingData()
+    public static BuildingData GenerateBuildingData(GameObject gameObject)
     {
         Transform gameObjectTransform = gameObject.transform;
 
@@ -21,19 +29,27 @@ public class BuildingDescription : MonoBehaviour
         float[] transformRotation = new float[3];
         float[] transformScale = new float[3];
 
+
+
+        // The below 9 statements convert transform information into float format so that it can be saved in a database.
+        // The below 3 statements convert transform position of this object's respective building into float format and stores it in a list.
         transformPosition[0] = gameObjectTransform.position.x;
         transformPosition[1] = gameObjectTransform.position.y;
         transformPosition[2] = gameObjectTransform.position.z;
 
+        // The below 3 statements convert transform rotation of this object's respective building into float format and stores it in a list.
         transformRotation[0] = gameObjectTransform.rotation.eulerAngles.x;
         transformRotation[1] = gameObjectTransform.rotation.eulerAngles.y;
         transformRotation[2] = gameObjectTransform.rotation.eulerAngles.z;
 
+        // The below 3 statements convert transform scale of this object's respective building into float format and stores it in a list.
         transformScale[0] = gameObjectTransform.localScale.x;
         transformScale[1] = gameObjectTransform.localScale.y;
         transformScale[2] = gameObjectTransform.localScale.z;
 
         BuildingData buildingData = new BuildingData(transformPosition, transformRotation, transformScale, buildingType, meshId, buildingId);
+
+        Control.allBuildingData.Add(buildingData);
 
         return buildingData;
     }
@@ -51,5 +67,15 @@ public class BuildingDescription : MonoBehaviour
     public static void CalculateTotalBuildings()
     {
         BuildingData.numAllBuildings = BuildingData.numMoneyGenBuildings + BuildingData.numGoalAddingBuildings;
+    }
+
+    public static float GetCreditReward(float multiplier = 1)
+    {
+        return multiplier * BuildingData.numMoneyGenBuildings;
+    }
+
+    public static float GetGoalReward(float defaultGoalQuantity = 3)
+    {
+        return defaultGoalQuantity * BuildingData.numGoalAddingBuildings;
     }
 }
