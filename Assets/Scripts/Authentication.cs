@@ -12,6 +12,7 @@ public class Authentication : MonoBehaviour
     FirebaseAuth auth;
     public DatabaseReference dbReference;
 
+    public TeleportXRRig teleport;
     public static string userId;
     public static string email;
 
@@ -46,7 +47,7 @@ public class Authentication : MonoBehaviour
         // check if user is logged in
         if (loggedIn)
         {
-
+            teleport.Teleport();
         }
     }
 
@@ -85,7 +86,9 @@ public class Authentication : MonoBehaviour
                 loggedIn = true;
 
                 CreateNewPlayer(userId, usernameSignUp, email, true);
-                CreatePlayerStats(userId, usernameSignUp, 0, 0, 0, 100, 0, false, false);
+                CreatePlayerStats(userId, usernameSignUp, 0, 0, 0, 100, 0);
+                CreateMissionLogs(userId, "mission1", "Create a financial goal", "noAttempt", "Building1");
+                CreateMissionLogs(userId, "mission2", "Complete 3 financial goals", "noAttempt", "Building3");
             }
         });
     }
@@ -97,11 +100,19 @@ public class Authentication : MonoBehaviour
         dbReference.Child("players/" + uuid).SetRawJsonValueAsync(createNewPlayer.NewPlayerToJson());
     }
 
-    void CreatePlayerStats(string uuid, string username, int usefulBuildingCount, int uselessBuildingCount, int totalBuildingCount, int credits, int numberOfGoalsCompleted, bool mission1Completed, bool mission2Completed)
+    void CreatePlayerStats(string uuid, string username, int usefulBuildingCount, int uselessBuildingCount, int totalBuildingCount, int credits, int numberOfGoalsCompleted)
     {
-        PlayerStats createPlayerStats = new PlayerStats(username, uselessBuildingCount, usefulBuildingCount, totalBuildingCount, credits, numberOfGoalsCompleted, mission1Completed, mission2Completed);
+        PlayerStats createPlayerStats = new PlayerStats(username, uselessBuildingCount, usefulBuildingCount, totalBuildingCount, credits, numberOfGoalsCompleted);
 
         dbReference.Child("playerStats/" + uuid).SetRawJsonValueAsync(createPlayerStats.PlayerStatsToJson());
+    }
+
+
+    void CreateMissionLogs(string uuid, string missionNumber, string missionContent, string missionStatus, string buildingName)
+    {
+        MissionLogs createMissionLogs = new MissionLogs(missionContent, missionStatus, buildingName);
+
+        dbReference.Child("missionLogs/" + uuid + "/" + missionNumber).SetRawJsonValueAsync(createMissionLogs.MissionLogsToJson());
     }
 
     public void LoggingIn()
@@ -185,8 +196,6 @@ public class Authentication : MonoBehaviour
             RetrievingData.anotherLoginRetrievingData = true;
             RetrievingData.credits = 0;
             RetrievingData.numberOfGoalsCompleted = 0;
-            RetrievingData.mission1Completed = false;
-            RetrievingData.mission2Completed = false;
             RetrievingData.totalBuildingCount = 0;
             RetrievingData.usefulBuildingCount = 0;
             RetrievingData.uselessBuildingCount = 0;

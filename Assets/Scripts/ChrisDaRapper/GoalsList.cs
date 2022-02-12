@@ -12,7 +12,7 @@ public class GoalsList
     public static GameObject togglePrefab;
 
     public static float distBetweenGoals;
-    public static int maxNumGoals;
+    public static int maxNumGoals = 1;
 
     public static void AddGoal(Goal goal)
     {

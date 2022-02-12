@@ -5,6 +5,7 @@ using Firebase.Database;
 using Firebase.Extensions;
 using TMPro;
 using System;
+using UnityEngine.UI;
 
 public class PostingData : MonoBehaviour
 {
@@ -22,6 +23,9 @@ public class PostingData : MonoBehaviour
     private bool allowDataCreation = false;
 
     public GameObject confirmPlacementButton;
+    //Goals that are going to be created
+    public GameObject createGoalPrefab;
+    public Transform createGoalArea;
 
     private void Awake()
     {
@@ -31,7 +35,7 @@ public class PostingData : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -52,54 +56,39 @@ public class PostingData : MonoBehaviour
         // PostingBuildingData();
     }
 
-    public void CreateNewGoalButton()
+    public void CreateNewGoalButton(GameObject goalPrefab, GameObject inputField1, GameObject inputField2)
     {
         string tempGoal, tempHow;
 
-        tempGoal = goalContent.GetComponent<TMP_InputField>().text;
-        tempHow = howToAchieve.GetComponent<TMP_InputField>().text;
-
-        CreateNewGoal(userId, tempGoal, tempHow);
-
-        goalContent.GetComponent<TMP_InputField>().placeholder.GetComponent<TMP_Text>().text = "Enter Goal";
-        howToAchieve.GetComponent<TMP_InputField>().placeholder.GetComponent<TMP_Text>().text = "Enter How To Achieve";
-
-        goalContent.GetComponent<TMP_InputField>().text = "";
-        howToAchieve.GetComponent<TMP_InputField>().text = "";
-
-        if (!RetrievingData.mission1Completed)
+        if (GoalsList.maxNumGoals > 0)
         {
-            UpdateMission1Completed();
-            RetrievingData.mission1Completed = true;
-        }
+            int goalSlots = GoalsList.maxNumGoals - 1;
 
-        // retrieve goals again
-        retrievingData.RetrieveGoals();
+            tempGoal = inputField1.GetComponent<TMP_InputField>().text;
+            tempHow = inputField2.GetComponent<TMP_InputField>().text;
+
+            CreateNewGoal(userId, tempGoal, tempHow, goalSlots);
+
+            Destroy(goalPrefab);
+
+            GoalsList.maxNumGoals -= 1;
+
+            // retrieve goals again
+            retrievingData.RetrieveGoals();
+        }
     }
 
-    public void CreateNewGoal(string uuid, string goalContent, string howToAchieve)
+    public void CreateNewGoal(string uuid, string goalContent, string howToAchieve, int goalSlots)
     {
-        Goals createGoals = new Goals(goalContent, howToAchieve);
+        Goals createGoals = new Goals(goalContent, howToAchieve, goalSlots);
 
         string key = dbReference.Child(uuid).Push().Key;
 
         dbReference.Child("currentGoals/" + uuid + "/" + key).SetRawJsonValueAsync(createGoals.GoalsToJson());
     }
 
-    public void UpdateUsefulBuildingCount()
+    public void UpdateTotalBuildingCount()
     {
-        dbReference.Child("playerStats/" + userId + "/usefulBuildingCount").SetValueAsync(RetrievingData.usefulBuildingCount);
-        dbReference.Child("playerStats/" + userId + "/totalBuildingCount").SetValueAsync(RetrievingData.totalBuildingCount);
-
-        // update leaderboard
-        retrievingData.GetLeaderboard();
-        // update timestamp
-        UpdatePlayerStatsTimestamp();
-    }
-
-    public void UpdateUselessBuildingCount()
-    {
-        dbReference.Child("playerStats/" + userId + "/uselessBuildingCount").SetValueAsync(RetrievingData.uselessBuildingCount);
         dbReference.Child("playerStats/" + userId + "/totalBuildingCount").SetValueAsync(RetrievingData.totalBuildingCount);
 
         // update leaderboard
@@ -116,22 +105,6 @@ public class PostingData : MonoBehaviour
         // update timestamp
         UpdatePlayerStatsTimestamp();
 
-    }
-
-    public void UpdateMission1Completed()
-    {
-        dbReference.Child("playerStats/" + userId + "/mission1Completed").SetValueAsync(true);
-
-        // update timestamp
-        UpdatePlayerStatsTimestamp();
-    }
-
-    public void UpdateMission2Completed()
-    {
-        dbReference.Child("playerStats/" + userId + "/mission2Completed").SetValueAsync(true);
-
-        // update timestamp
-        UpdatePlayerStatsTimestamp();
     }
 
     public void UpdatePlayerStatsTimestamp()
@@ -225,6 +198,39 @@ public class PostingData : MonoBehaviour
                 // allowDataCreation = true;
             }
         });
+    }
+
+    //create new prefab
+    //new prefab has 2 input field and the border
+    //prefab is with the input box, set active text to false
+    public void CreateGoalPrefab()
+    {
+        if (GoalsList.maxNumGoals > 0)
+        {
+            if (createGoalArea.transform.childCount == 0)
+            {
+                GameObject entry = Instantiate(createGoalPrefab, createGoalArea);
+                TMP_InputField[] inputFieldDetails = entry.GetComponentsInChildren<TMP_InputField>();
+                Button[] buttonDetails = entry.GetComponentsInChildren<Button>();
+                inputFieldDetails[0].gameObject.SetActive(true);
+                inputFieldDetails[1].gameObject.SetActive(true);
+                buttonDetails[0].onClick.AddListener(delegate () { CreateNewGoalButton(entry, inputFieldDetails[0].gameObject, inputFieldDetails[1].gameObject); });
+                buttonDetails[1].onClick.AddListener(delegate () { CancelGoalPrefab(); });
+            }
+
+            else
+            {
+                Debug.Log("Finish setting up your goal");
+            }
+
+
+        }
+
+    }
+
+    public void CancelGoalPrefab()
+    {
+        Destroy(createGoalArea.transform.GetChild(0).gameObject);
     }
 
     // IEnumerator DeleteAndCreateBuildingData()

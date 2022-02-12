@@ -5,20 +5,22 @@ using System;
 
 public class ShopItemsClass
 {
-    public string Name;
-    public int Price;
-    public string PowerUp;
-    public string Description;
-    public bool Status;
+    public string name;
+    public int price;
+    public int creditGeneration;
+    public string powerUp;
+    public string description;
+    public bool status;
     public long updatedOn;
 
-    public ShopItemsClass(string name, string powerUp , string description, int price, bool status)
+    public ShopItemsClass(string name, string powerUp, string description, int price, int creditGeneration, bool status)
     {
-        this.Name = name;
-        this.PowerUp = powerUp;
-        this.Price = price;
-        this.Description = description;
-        this.Status = status;
+        this.name = name;
+        this.powerUp = powerUp;
+        this.price = price;
+        this.description = description;
+        this.status = status;
+        this.creditGeneration = creditGeneration;
         var timestamp = this.GetTimeUnix();
         this.updatedOn = timestamp;
     }

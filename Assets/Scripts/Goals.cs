@@ -9,16 +9,18 @@ public class Goals
     public string howToAchieve;
     public long createdOn;
     public long updatedOn;
+    public int goalSlots;
 
     public Goals()
     {
 
     }
 
-    public Goals(string goalContent, string howToAchieve)
+    public Goals(string goalContent, string howToAchieve, int goalSlots)
     {
         this.goalContent = goalContent;
         this.howToAchieve = howToAchieve;
+        this.goalSlots = goalSlots;
         // timestamp properties
         var timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
         this.createdOn = timestamp;

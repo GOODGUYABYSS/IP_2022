@@ -8,13 +8,25 @@ public class GridSystem
     private int height;
     public readonly float cellSize;
 
+    float xAdjust;
+    float yAdjust;
+    float zAdjust;
+
+    GameObject parent;
+
     public GridCell[,] gridArray;
 
-    public GridSystem(int width, int height, float cellSize, GameObject gridObj)
+    public GridSystem(int width, int height, float cellSize, float xAdjust, float yAdjust, float zAdjust, GameObject gridObj, GameObject parent)
     {
         this.width = width;
         this.height = height;
         this.cellSize = cellSize;
+
+        this.xAdjust = xAdjust;
+        this.yAdjust = yAdjust;
+        this.zAdjust = zAdjust;
+
+        this.parent = parent;
 
         gridArray = new GridCell[width, height];
         InitGridCells(gridObj);
@@ -31,9 +43,9 @@ public class GridSystem
         {
             for (int j = 0; j < gridArray.GetLength(1); j++)
             {
-                spawnPos = new Vector3(cellSize * i, 0, cellSize * j);
+                spawnPos = new Vector3(cellSize * i + xAdjust - (width * cellSize / 2) + (cellSize / 2) + parent.transform.position.x, 0 + yAdjust + parent.transform.position.y, cellSize * j + zAdjust - (height * cellSize / 2) + (cellSize / 2) + parent.transform.position.z);
 
-                spawnedGridObj = Object.Instantiate(gridObj);
+                spawnedGridObj = Object.Instantiate(gridObj, parent: parent.transform);
 
                 spawnedGridObj.transform.position = spawnPos;
 

@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Building 1
+  - Building 2
+  - Building 3
+  - Building 4
   layers:
   - Default
   - TransparentFX

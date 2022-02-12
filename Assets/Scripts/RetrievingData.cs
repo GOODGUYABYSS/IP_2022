@@ -9,8 +9,12 @@ using System;
 
 public class RetrievingData : MonoBehaviour
 {
+    public Shop shopScript;
+    public SwipeMenu swipeMenu;
     public DatabaseReference dbReference;
 
+    public static List<ShopItemsClass> storeList = new List<ShopItemsClass>();
+    public static List<MissionLogs> missionList = new List<MissionLogs>();
     public static bool anotherLoginRetrievingData = true;
 
     public string userId;
@@ -27,32 +31,31 @@ public class RetrievingData : MonoBehaviour
     [SerializeField]
     private int newNumberOfGoalsCompleted;
 
-    // see if it needs to be static ASK JASLYN
-    public string mission1Content;
-    public string mission2Content;
-
-    public static bool mission1Completed;
-    public static bool mission2Completed;
-
     public static int totalBuildingCount;
     public static int usefulBuildingCount;
     public static int uselessBuildingCount;
 
+    //Goals that already exist
     public GameObject rowPrefab;
     public Transform tableContent;
 
     public GameObject leaderboardPrefab;
     public Transform leaderboardTable;
 
+    public GameObject goalSlotsText;
+    public GameObject goalCompletedText;
+
     private void Awake()
     {
         dbReference = FirebaseDatabase.DefaultInstance.RootReference;
+        
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        RetrieveStoreThings();
+
     }
 
     // Update is called once per frame
@@ -68,13 +71,59 @@ public class RetrievingData : MonoBehaviour
             // retrieve the player data
             RetrievePlayerStats();
 
+            RetrieveMissionLogs();
+
             RetrieveGoals();
 
             GetLeaderboard();
+            
+            if(numberOfGoalsCompleted != 0)
+            {
+                RetrieveGoalSlots();
+            }
+            
 
             // stop the loop
             anotherLoginRetrievingData = false;
         }
+    }
+    public void RetrieveStoreThings()
+    {
+        
+
+        dbReference.Child("storeThings").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    
+
+                    foreach (DataSnapshot d in snapshot.Children)
+                    {
+                        ShopItemsClass store = JsonUtility.FromJson<ShopItemsClass>(d.GetRawJsonValue());
+                        storeList.Add(store);
+                    }
+
+                    foreach (ShopItemsClass store in storeList)
+                    {
+                        Debug.LogFormat("Name: {0}, Description: {1}, powerUp: {2}, price {3}", store.name, store.description, store.powerUp, store.price);
+                    }
+                    shopScript.DisplayShopItems();
+                    swipeMenu.GetOnlyStoreItems();
+                }
+
+                
+            }
+        });
     }
 
     public void RetrievePlayerStats()
@@ -94,8 +143,6 @@ public class RetrievingData : MonoBehaviour
                 if (snapshot.Exists)
                 {
                     credits = int.Parse(snapshot.Child("credits").Value.ToString());
-                    mission1Completed = Convert.ToBoolean(snapshot.Child("mission1Completed").Value.ToString());
-                    mission2Completed = Convert.ToBoolean(snapshot.Child("mission2Completed").Value.ToString());
                     numberOfGoalsCompleted = int.Parse(snapshot.Child("numberOfGoalsCompleted").Value.ToString());
                     totalBuildingCount = int.Parse(snapshot.Child("totalBuildingCount").Value.ToString());
                     usefulBuildingCount = int.Parse(snapshot.Child("usefulBuildingCount").Value.ToString());
@@ -170,6 +217,9 @@ public class RetrievingData : MonoBehaviour
 
     public void UpdateGoalsList()
     {
+        int goalSlotsLeft = GoalsList.maxNumGoals;
+        goalSlotsText.GetComponent<TMP_Text>().text = "You can add " + goalSlotsLeft + " more goals.";
+        goalCompletedText.GetComponent<TMP_Text>().text = numberOfGoalsCompleted + " goals completed";
         // show the original prefab so that it can be instantiated
         rowPrefab.SetActive(true);
 
@@ -177,7 +227,7 @@ public class RetrievingData : MonoBehaviour
         foreach (Transform item in tableContent)
         {
             // DO NOT DELETE ORIGINAL PREFAB
-            if (item.name != "row_v2 (1)")
+            if (item.name != "GoalPrefab")
             {
                 Destroy(item.gameObject);
             }
@@ -211,6 +261,8 @@ public class RetrievingData : MonoBehaviour
             buttonDetails[0].onClick.AddListener(delegate() { EditGoal(buttonDetails[0].gameObject); });
             buttonDetails[1].onClick.AddListener(delegate () { ConfirmEditGoal(pushKey, buttonDetails[0].gameObject, buttonDetails[1].gameObject); });
             buttonDetails[2].onClick.AddListener(delegate () { GoalCompleted(pushKey, buttonDetails[2].gameObject); });
+            buttonDetails[3].onClick.AddListener(delegate () { DeleteGoal(pushKey, buttonDetails[3].gameObject); });
+
         }
 
         // hide the original prefab so that the result will only display data from firebase
@@ -329,6 +381,16 @@ public class RetrievingData : MonoBehaviour
         RetrieveNumberOfGoalsCompleted();
     }
 
+    public void DeleteGoal(string key, GameObject deleteButton)
+    {
+        GameObject tempParent = deleteButton.transform.parent.gameObject;
+
+        Destroy(tempParent);
+        GoalsList.maxNumGoals += 1;
+
+        dbReference.Child("currentGoals/" + userId + "/" + key).SetValueAsync(null);
+    }
+
     public void GetLeaderboard()
     {
         // reset the variable before retrieving from firebase
@@ -398,5 +460,64 @@ public class RetrievingData : MonoBehaviour
         }
 
         leaderboardPrefab.SetActive(false);
+    }
+
+   
+
+    public void RetrieveGoalSlots()
+    {
+        dbReference.Child("currentGoals/" + userId).OrderByChild("updatedOn").LimitToLast(1).GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    GoalsList.maxNumGoals = int.Parse(snapshot.Child("goalSlots").Value.ToString());
+                }
+            }
+        });
+    }
+
+    public void RetrieveMissionLogs()
+    {
+        dbReference.Child("missionLogs/" + userId).GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    foreach (DataSnapshot d in snapshot.Children)
+                    {
+                        Debug.Log("YAY IM WORKING");
+                        MissionLogs mission = JsonUtility.FromJson<MissionLogs>(d.GetRawJsonValue());//Something wrong with this line
+                        Debug.Log("YAY IM WORKING");
+                        missionList.Add(mission);
+
+                    }
+
+                    foreach (MissionLogs mission in missionList)
+                    {
+                        Debug.LogFormat("content: {0}, status: {1}, name: {2}", mission.missionContent, mission.missionStatus, mission.buildingName);
+                    }
+                }
+
+            }
+        });
     }
 }

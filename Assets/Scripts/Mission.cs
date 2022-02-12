@@ -9,10 +9,10 @@ public class Mission : MonoBehaviour
 
     public string Description;
     public string ItemToObtain;
-    public bool Status;
+    public string Status;
     public long updatedOn;
 
-    public Mission(string name, string itemToObtain, bool status)
+    public Mission(string name, string itemToObtain, string status)
     {
         this.Name = name;
         this.ItemToObtain = itemToObtain;
