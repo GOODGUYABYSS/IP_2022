@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2138677392}
-  m_IndirectSpecularColor: {r: 0.2850269, g: 0.3713935, b: 0.49601045, a: 1}
+  m_IndirectSpecularColor: {r: 0.28502658, g: 0.37139305, b: 0.49600944, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -6336,6 +6336,7 @@ MonoBehaviour:
   usernameList: []
   totalBuildingCountList: []
   newNumberOfGoalsCompleted: 0
+  goalSlotsLeft: 0
   rowPrefab: {fileID: 1455239869355981163, guid: 8ef523ec3da452f40b805d1cae0bd928, type: 3}
   tableContent: {fileID: 1770987773}
   leaderboardPrefab: {fileID: 7613196552155157323}
@@ -15500,6 +15501,7 @@ MonoBehaviour:
   confirmPlacementButton: {fileID: 1103176179}
   createGoalPrefab: {fileID: 1455239869355981163, guid: e7c40509385da1b4f8d2fe2ad2a65860, type: 3}
   createGoalArea: {fileID: 1901381271}
+  goalSlotsText: {fileID: 1678311984}
 --- !u!4 &1618174009
 Transform:
   m_ObjectHideFlags: 0

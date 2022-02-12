@@ -27,6 +27,8 @@ public class PostingData : MonoBehaviour
     public GameObject createGoalPrefab;
     public Transform createGoalArea;
 
+    public GameObject goalSlotsText;
+
     private void Awake()
     {
         dbReference = FirebaseDatabase.DefaultInstance.RootReference;
@@ -62,25 +64,26 @@ public class PostingData : MonoBehaviour
 
         if (GoalsList.maxNumGoals > 0)
         {
-            int goalSlots = GoalsList.maxNumGoals - 1;
-
             tempGoal = inputField1.GetComponent<TMP_InputField>().text;
             tempHow = inputField2.GetComponent<TMP_InputField>().text;
 
-            CreateNewGoal(userId, tempGoal, tempHow, goalSlots);
+            CreateNewGoal(userId, tempGoal, tempHow);
 
             Destroy(goalPrefab);
 
             GoalsList.maxNumGoals -= 1;
+            dbReference.Child("playerStats/" + userId + "/goalSlotsLeft").SetValueAsync(GoalsList.maxNumGoals);
+
+            goalSlotsText.GetComponent<TMP_Text>().text = "You can add " + GoalsList.maxNumGoals + " more goals.";
 
             // retrieve goals again
             retrievingData.RetrieveGoals();
         }
     }
 
-    public void CreateNewGoal(string uuid, string goalContent, string howToAchieve, int goalSlots)
+    public void CreateNewGoal(string uuid, string goalContent, string howToAchieve)
     {
-        Goals createGoals = new Goals(goalContent, howToAchieve, goalSlots);
+        Goals createGoals = new Goals(goalContent, howToAchieve);
 
         string key = dbReference.Child(uuid).Push().Key;
 

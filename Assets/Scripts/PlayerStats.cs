@@ -8,6 +8,7 @@ public class PlayerStats
     public int usefulBuildingCount;
     public int uselessBuildingCount;
     public int totalBuildingCount;
+    public int goalSlotsLeft;
     public int credits;
     public int numberOfGoalsCompleted;
 
@@ -16,12 +17,13 @@ public class PlayerStats
 
     }
 
-    public PlayerStats(string username, int usefulBuildingCount, int uselessBuildingCount, int totalBuildingCount, int credits, int numberOfGoalsCompleted)
+    public PlayerStats(string username, int usefulBuildingCount, int uselessBuildingCount, int totalBuildingCount, int goalSlotsLeft, int credits, int numberOfGoalsCompleted)
     {
         this.username = username;
         this.usefulBuildingCount = usefulBuildingCount;
         this.uselessBuildingCount = uselessBuildingCount;
         this.totalBuildingCount = totalBuildingCount;
+        this.goalSlotsLeft = goalSlotsLeft;
         this.credits = credits;
         this.numberOfGoalsCompleted = numberOfGoalsCompleted;
     }

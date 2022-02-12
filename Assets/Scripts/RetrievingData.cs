@@ -35,6 +35,8 @@ public class RetrievingData : MonoBehaviour
     public static int usefulBuildingCount;
     public static int uselessBuildingCount;
 
+    public int goalSlotsLeft;
+
     //Goals that already exist
     public GameObject rowPrefab;
     public Transform tableContent;
@@ -73,15 +75,9 @@ public class RetrievingData : MonoBehaviour
 
             RetrieveMissionLogs();
 
-            RetrieveGoals();
-
             GetLeaderboard();
-            
-            if(numberOfGoalsCompleted != 0)
-            {
-                RetrieveGoalSlots();
-            }
-            
+
+            RetrieveGoals();
 
             // stop the loop
             anotherLoginRetrievingData = false;
@@ -89,8 +85,6 @@ public class RetrievingData : MonoBehaviour
     }
     public void RetrieveStoreThings()
     {
-        
-
         dbReference.Child("storeThings").GetValueAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted || task.IsCanceled)
@@ -147,6 +141,10 @@ public class RetrievingData : MonoBehaviour
                     totalBuildingCount = int.Parse(snapshot.Child("totalBuildingCount").Value.ToString());
                     usefulBuildingCount = int.Parse(snapshot.Child("usefulBuildingCount").Value.ToString());
                     uselessBuildingCount = int.Parse(snapshot.Child("uselessBuildingCount").Value.ToString());
+                    goalSlotsLeft = int.Parse(snapshot.Child("goalSlotsLeft").Value.ToString());
+
+                    // set the max number of goals for the player
+                    GoalsList.maxNumGoals = goalSlotsLeft;
                 }
             }
         });
@@ -189,28 +187,6 @@ public class RetrievingData : MonoBehaviour
 
                 // update the My Goals UI
                 UpdateGoalsList();
-            }
-        });
-    }
-
-    public void RetrieveNumberOfGoalsCompleted()
-    {
-        dbReference.Child("playerStats/" + userId + "/numberOfGoalsCompleted").GetValueAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-                return;
-            }
-
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-
-                if (snapshot.Exists)
-                {
-                    numberOfGoalsCompleted = int.Parse(snapshot.Value.ToString());
-                }
             }
         });
     }
@@ -367,6 +343,8 @@ public class RetrievingData : MonoBehaviour
         // destroy gameobject in the game to update UI
         Destroy(tempParent);
 
+        goalCompletedText.GetComponent<TMP_Text>().text = newNumberOfGoalsCompleted + " goals completed";
+
         // delete goalContent and howToAchieve from firebase
         dbReference.Child("currentGoals/" + userId + "/" + key).SetValueAsync(null);
 
@@ -377,8 +355,6 @@ public class RetrievingData : MonoBehaviour
         var timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
         // update playerStats updatedOn timestamp
         dbReference.Child("players/" + userId + "/updatedOn").SetValueAsync(timestamp);
-
-        RetrieveNumberOfGoalsCompleted();
     }
 
     public void DeleteGoal(string key, GameObject deleteButton)
@@ -386,7 +362,11 @@ public class RetrievingData : MonoBehaviour
         GameObject tempParent = deleteButton.transform.parent.gameObject;
 
         Destroy(tempParent);
+
         GoalsList.maxNumGoals += 1;
+        dbReference.Child("playerStats/" + userId + "/goalSlotsLeft").SetValueAsync(GoalsList.maxNumGoals);
+
+        goalSlotsText.GetComponent<TMP_Text>().text = "You can add " + GoalsList.maxNumGoals + " more goals.";
 
         dbReference.Child("currentGoals/" + userId + "/" + key).SetValueAsync(null);
     }
@@ -462,30 +442,6 @@ public class RetrievingData : MonoBehaviour
         leaderboardPrefab.SetActive(false);
     }
 
-   
-
-    public void RetrieveGoalSlots()
-    {
-        dbReference.Child("currentGoals/" + userId).OrderByChild("updatedOn").LimitToLast(1).GetValueAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-                return;
-            }
-
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-
-                if (snapshot.Exists)
-                {
-                    GoalsList.maxNumGoals = int.Parse(snapshot.Child("goalSlots").Value.ToString());
-                }
-            }
-        });
-    }
-
     public void RetrieveMissionLogs()
     {
         dbReference.Child("missionLogs/" + userId).GetValueAsync().ContinueWithOnMainThread(task =>
@@ -504,11 +460,8 @@ public class RetrievingData : MonoBehaviour
                 {
                     foreach (DataSnapshot d in snapshot.Children)
                     {
-                        Debug.Log("YAY IM WORKING");
-                        MissionLogs mission = JsonUtility.FromJson<MissionLogs>(d.GetRawJsonValue());//Something wrong with this line
-                        Debug.Log("YAY IM WORKING");
+                        MissionLogs mission = JsonUtility.FromJson<MissionLogs>(d.GetRawJsonValue());
                         missionList.Add(mission);
-
                     }
 
                     foreach (MissionLogs mission in missionList)

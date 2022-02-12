@@ -86,7 +86,7 @@ public class Authentication : MonoBehaviour
                 loggedIn = true;
 
                 CreateNewPlayer(userId, usernameSignUp, email, true);
-                CreatePlayerStats(userId, usernameSignUp, 0, 0, 0, 100, 0);
+                CreatePlayerStats(userId, usernameSignUp, 0, 0, 0, 1, 100, 0);
                 CreateMissionLogs(userId, "mission1", "Create a financial goal", "noAttempt", "Building1");
                 CreateMissionLogs(userId, "mission2", "Complete 3 financial goals", "noAttempt", "Building3");
             }
@@ -100,9 +100,9 @@ public class Authentication : MonoBehaviour
         dbReference.Child("players/" + uuid).SetRawJsonValueAsync(createNewPlayer.NewPlayerToJson());
     }
 
-    void CreatePlayerStats(string uuid, string username, int usefulBuildingCount, int uselessBuildingCount, int totalBuildingCount, int credits, int numberOfGoalsCompleted)
+    void CreatePlayerStats(string uuid, string username, int usefulBuildingCount, int uselessBuildingCount, int totalBuildingCount, int goalSlotsLeft, int credits, int numberOfGoalsCompleted)
     {
-        PlayerStats createPlayerStats = new PlayerStats(username, uselessBuildingCount, usefulBuildingCount, totalBuildingCount, credits, numberOfGoalsCompleted);
+        PlayerStats createPlayerStats = new PlayerStats(username, uselessBuildingCount, usefulBuildingCount, totalBuildingCount, goalSlotsLeft, credits, numberOfGoalsCompleted);
 
         dbReference.Child("playerStats/" + uuid).SetRawJsonValueAsync(createPlayerStats.PlayerStatsToJson());
     }
@@ -199,6 +199,8 @@ public class Authentication : MonoBehaviour
             RetrievingData.totalBuildingCount = 0;
             RetrievingData.usefulBuildingCount = 0;
             RetrievingData.uselessBuildingCount = 0;
+
+            GoalsList.maxNumGoals = 0;
 
             Debug.Log("User has been logged out");
         }
