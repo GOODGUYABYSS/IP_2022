@@ -579,6 +579,7 @@ GameObject:
   - component: {fileID: 1051063907643194428}
   - component: {fileID: 7898924177246083919}
   - component: {fileID: 7954474432805263744}
+  - component: {fileID: 8755522952145664235}
   m_Layer: 0
   m_Name: Building2(2.0)
   m_TagString: Untagged
@@ -753,6 +754,14 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!33 &8755522952145664235
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6588729651563335102}
+  m_Mesh: {fileID: 0}
 --- !u!1 &8306355151715149082
 GameObject:
   m_ObjectHideFlags: 0

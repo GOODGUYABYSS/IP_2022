@@ -28,6 +28,8 @@ public class BuildingData
 
     public float buildingId;
 
+    public bool fromDatabase = false;
+
     // public bool storedInDatabase;
 
     public BuildingData(float[] transformPosition, float[] transformRotation, float[] transformScale, string buildingType, string meshId, float buildingId, int[] cellLocation = null)

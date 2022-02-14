@@ -12,6 +12,7 @@ public class RetrievingData : MonoBehaviour
     public Shop shopScript;
     public SwipeMenu swipeMenu;
     public DatabaseReference dbReference;
+    public Control controlScript;
 
     public static List<ShopItemsClass> storeList = new List<ShopItemsClass>();
     public static List<MissionLogs> missionList = new List<MissionLogs>();
@@ -20,6 +21,9 @@ public class RetrievingData : MonoBehaviour
     public string userId;
 
     public static int credits;
+
+    public static string mission1Status;
+    public static string mission2Status;
 
     public Dictionary<string, string> goalsAndKeys = new Dictionary<string, string>();
     public Dictionary<string, string> goalsAndHowToAchieve = new Dictionary<string, string>();
@@ -75,9 +79,18 @@ public class RetrievingData : MonoBehaviour
 
             RetrieveMissionLogs();
 
+            RetrieveMission1Status();
+            RetrieveMission2Status();
+            Debug.Log(mission1Status);
+
+
             GetLeaderboard();
 
             RetrieveGoals();
+
+            controlScript.GetBuildingStuff();
+
+            
 
             // stop the loop
             anotherLoginRetrievingData = false;
@@ -355,6 +368,9 @@ public class RetrievingData : MonoBehaviour
         var timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
         // update playerStats updatedOn timestamp
         dbReference.Child("players/" + userId + "/updatedOn").SetValueAsync(timestamp);
+
+        //Everytime they click completed, it will check if the mission 2 is ongoing 
+        RetrieveTargetNumberOfGoals();
     }
 
     public void DeleteGoal(string key, GameObject deleteButton)
@@ -442,6 +458,113 @@ public class RetrievingData : MonoBehaviour
         leaderboardPrefab.SetActive(false);
     }
 
+    public void RetrieveMission1Status()
+    {
+        dbReference.Child("missionLogs/" + userId + "/mission1/missionStatus").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+        if (task.IsFaulted || task.IsCanceled)
+            {
+            Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+            return;
+        }
+
+            else if (task.IsCompleted)
+        {
+            DataSnapshot snapshot = task.Result;
+
+            if (snapshot.Exists)
+            {
+                mission1Status = snapshot.Value.ToString();
+            }
+        }
+    });
+    }
+
+public void RetrieveMission2Status()
+{
+    dbReference.Child("missionLogs/" + userId + "/mission2/missionsStatus").GetValueAsync().ContinueWithOnMainThread(task =>
+    {
+    if (task.IsFaulted || task.IsCanceled)
+            {
+        Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+        return;
+    }
+
+            else if (task.IsCompleted)
+    {
+        DataSnapshot snapshot = task.Result;
+
+        if (snapshot.Exists)
+        {
+            mission2Status = snapshot.Value.ToString();
+        }
+    }
+});
+
+    }
+    public void RetrieveTargetNumberOfGoals()
+    {
+        int targetNumberOfGoals = 0;
+
+        // run all of this under an "if" statement only if mission 2 status is "onGoing"
+        RetrieveMission2Status();
+
+        if (mission2Status == "onGoing")
+        {
+            // retrieve the most updated number of goals completed
+            RetrieveNumberOfGoalsCompleted();
+
+            dbReference.Child("missionLogs/" + userId + "/mission2/targetNumberOfGoals").GetValueAsync().ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                    return;
+                }
+
+                else if (task.IsCompleted)
+                {
+                    DataSnapshot snapshot = task.Result;
+
+                    if (snapshot.Exists)
+                    {
+                        targetNumberOfGoals = int.Parse(snapshot.Value.ToString());
+                    }
+                }
+            });
+
+            if (numberOfGoalsCompleted == targetNumberOfGoals)
+            {
+                // refer back to update mission2completed function and run it below
+
+                // delete target number of goals in firebase
+                dbReference.Child("missionLogs/" + userId + "/mission2/targetNumberOfGoals").SetValueAsync(null);
+
+            }
+        }
+    }
+
+    public void RetrieveNumberOfGoalsCompleted()
+    {
+        dbReference.Child("playerStats/" + userId + "/numberOfGoalsCompleted").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    numberOfGoalsCompleted = int.Parse(snapshot.Value.ToString());
+                }
+            }
+        });
+    }
     public void RetrieveMissionLogs()
     {
         dbReference.Child("missionLogs/" + userId).GetValueAsync().ContinueWithOnMainThread(task =>
@@ -467,10 +590,29 @@ public class RetrievingData : MonoBehaviour
                     foreach (MissionLogs mission in missionList)
                     {
                         Debug.LogFormat("content: {0}, status: {1}, name: {2}", mission.missionContent, mission.missionStatus, mission.buildingName);
+
+                        if(mission.missionStatus == "onGoing")
+                        {
+
+                            int creditGeneration = 3;
+                            Debug.Log("lol");
+                            if (missionList[1].missionStatus == "onGoing")
+                            {
+                                creditGeneration = 5;
+                            }
+
+                            shopScript.MissionPrefab(mission.buildingName, creditGeneration);
+                            //Spawn the mission Prefab
+                            //link the function from the shop script
+
+                        }
                     }
                 }
 
             }
         });
+
     }
+
+
 }

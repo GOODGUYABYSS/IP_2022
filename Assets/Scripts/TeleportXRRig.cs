@@ -4,11 +4,17 @@ using UnityEngine;
 
 public class TeleportXRRig : MonoBehaviour
 {
-    public Transform teleportTarget;
-    public GameObject thePlayer;
+    public  Transform teleportTargetin;
+    public Transform teleportTargetOut;
+    public  GameObject thePlayer;
 
     public void Teleport()
     {
-            thePlayer.transform.position = teleportTarget.transform.position;
+            thePlayer.transform.position = teleportTargetin.transform.position;
+    }
+
+    public void TeleportOut()
+    {
+        thePlayer.transform.position = teleportTargetOut.transform.position;
     }
 }

@@ -6,17 +6,21 @@ using TMPro;
 using UnityEditorInternal;
 
 public class Shop : MonoBehaviour
-{   public int credits = 100;
+{
+    public int credits = 100;
+
+    [Header("Scripts")]
+    public PostingData postDataThings;
 
     [Header("Shop Items")]
     public GameObject ShopItems;//The shop prefabs spawned using the list
     public Transform ShopArea;//The gameobject that the shop prefabs spawn in
 
+
     [Header("Mission Things")]
     public GameObject Mission;//The Mission prefabs spawned using the list
     public Transform MissionArea;// The gameobject that the Mission prefabs spawn in
-    public string Mission1Status;
-    public string Mission2Status;
+
     public int Mission2BuildingCount;
     /// <summary>
     //[Header("Notification")]
@@ -25,7 +29,7 @@ public class Shop : MonoBehaviour
     //public Transform NotificationArea;// The area that notifications spawn in
 
     [Header("Buildings")]
-    public GameObject Building1;//The building prefab with the turn table script
+    public GameObject building1;//The building prefab with the turn table script
     public GameObject building2;//the building prefab with the turn table script
     public GameObject building3;//the building prefab with the turn table script
     public GameObject building4;//the building prefab with the turn table script
@@ -34,6 +38,7 @@ public class Shop : MonoBehaviour
     public GameObject rightHandController;
     public GameObject xrObjects;
 
+    public static bool mouseClicked = true;
 
     public void DisplayShopItems()
     {
@@ -55,8 +60,9 @@ public class Shop : MonoBehaviour
         // destroy the game object that are placeholders
 
 
-        foreach ( ShopItemsClass i in RetrievingData.storeList)
+        foreach (ShopItemsClass i in RetrievingData.storeList)
         {
+
             Debug.Log(i.name);
             //Spawn a card with the building
             GameObject entry = Instantiate(Prefab, PrefabPos);
@@ -75,39 +81,79 @@ public class Shop : MonoBehaviour
             var button = entry.GetComponentsInChildren<Button>();
             var ClickMe = button[0].GetComponent<Button>();
             ClickMe.onClick.AddListener(() => ClickToBuy(i.name, tag, i.price, i.creditGeneration));
-
             entry.transform.localScale = Vector3.one;
+
+
         }
     }
 
-    public void ClickToBuy(string Item, string tag, int Price, int CreditGeneration)
+    //storage function
+    //Stores i.name(Item), i.credit generation (credit generation), if  i.name= building 1, Missions logs M1 = RetrievingData.missionList[0] ;
+
+    public void MissionPrefab(string Item, int CreditGeneration)
     {
 
-        MissionLogs M1 =  RetrievingData.missionList[0];
-        MissionLogs M2 = RetrievingData.missionList[1];
+
+        var Mission1Data = RetrievingData.missionList[0];
+        var Mission2Data = RetrievingData.missionList[1];
+
+        MissionLogs MissionData = Mission1Data;
+
+        if (Item == "Building3")
+        {
+            MissionData = Mission2Data;
+        }
+
+        GameObject mission = Instantiate(Mission, MissionArea);
+        TextMeshProUGUI[] MissionVar = mission.GetComponentsInChildren<TextMeshProUGUI>();
+        MissionVar[0].text = MissionData.missionContent;
+        MissionVar[1].text = "Complete to obtain " + MissionData.buildingName;
+        var button = mission.GetComponentsInChildren<Button>();
+        button[0].gameObject.SetActive(false);
+        var ClaimMe = button[0].GetComponent<Button>();
+
+
+        if (Mission1Data.missionStatus == "completed")
+        {
+            button[0].gameObject.SetActive(true);
+            ClaimMe.onClick.AddListener(() => SpawnItem(building1, CreditGeneration));
+            
+           
+        }
+
+        if (Mission2Data.missionStatus == "completed")
+        {
+            button[0].gameObject.SetActive(true);
+            ClaimMe.onClick.AddListener(() => SpawnItem(building3, CreditGeneration));
+            
+      
+        }
+
+    }
+
+
+    public void ClickToBuy(string Item, string tag, int Price, int CreditGeneration)
+    {
 
 
         Debug.Log("Bought " + Item);
 
         if (tag == "Building1")
-        {   
-            
+        {
+
             Debug.Log("Mission 1 Set a savings goal");
             //Some function to create mission and save mission in the database in the mission panel
-            if(Mission1Status == "onGoing")
+            if (RetrievingData.mission1Status == "onGoing")
             {
                 Debug.Log("Please complete your current mission");
                 //send some notification that cannot access
             }
             else
             {//spawn m1 prefab
-                GameObject mission = Instantiate(Mission, MissionArea);
-                TextMeshProUGUI[] MissionVar = mission.GetComponentsInChildren<TextMeshProUGUI>();
-                MissionVar[0].text = M1.missionContent;
-                MissionVar[1].text = "Complete to obtain " + M1.buildingName;
-                var button = mission.GetComponentsInChildren<Button>();
-                var ClaimMe = button[0].GetComponent<Button>();
-                Mission1Status = "onGoing";
+                MissionPrefab(Item, CreditGeneration);
+                RetrievingData.mission1Status = "onGoing";
+
+                postDataThings.UpdateMission1Ongoing();
 
             }
 
@@ -116,6 +162,7 @@ public class Shop : MonoBehaviour
             //Spawn the prefab for building 1
         }
 
+        // function that retrieves the mission data at the beginning
         if (tag == "Building2")
         {
             Debug.Log("PaySomeMoney");
@@ -137,21 +184,15 @@ public class Shop : MonoBehaviour
 
         if (tag == "Building3")
         {
-            Debug.Log("Mission 2 Buy 2 useless buildings");
-
-            if (Mission2Status == "onGoing")
+            if (RetrievingData.mission2Status == "onGoing")
             {
                 Debug.Log("Please complete your current mission");
                 //send some notification that cannot access
             }
             else
             {//spawn m2 prefab
-                GameObject mission = Instantiate(Mission, MissionArea);
-                TextMeshProUGUI[] MissionVar = mission.GetComponentsInChildren<TextMeshProUGUI>();
-                MissionVar[0].text = M2.missionContent;
-                MissionVar[1].text = "Complete to obtain " + M2.buildingName;
-                Mission2Status = "onGoing";
-
+                MissionPrefab(Item, CreditGeneration);
+                postDataThings.UpdateMission2Ongoing();
             }
         }
 
@@ -166,7 +207,7 @@ public class Shop : MonoBehaviour
                 GoalsList.maxNumGoals += 1;
                 Debug.Log("How much money you have left:" + credits);
             }
-            
+
             else
             {
                 Debug.Log(" You do not have enough money to buy this item. Come back later");
@@ -192,13 +233,10 @@ public class Shop : MonoBehaviour
 
     }
 
-    public void claimBuilding( string building)
-    {
-        
-    }
 
 
-   public void SpawnItem(GameObject thingToSpawn, int creditGeneration = 0)
+
+    public void SpawnItem(GameObject thingToSpawn, int creditGeneration = 0)
     {
         // xrObjects.transform.position;
 
@@ -227,6 +265,17 @@ public class Shop : MonoBehaviour
 
         entry.GetComponent<BoxCollider>().enabled = false;
         entry.AddComponent<BuildingDescription>();
+
+        mouseClicked = true;
+
+        StartCoroutine(WaitAfterButtonPress());
+    }
+
+    IEnumerator WaitAfterButtonPress()
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        mouseClicked = false;
     }
 
     //in the missions prefab there will be a button that allows player to claim their building after they have completed the mission.

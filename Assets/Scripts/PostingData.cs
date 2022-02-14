@@ -12,6 +12,7 @@ public class PostingData : MonoBehaviour
     public DatabaseReference dbReference;
     public RetrievingData retrievingData;
 
+
     public static bool anotherLoginPostingData = true;
     public string userId;
 
@@ -76,6 +77,12 @@ public class PostingData : MonoBehaviour
 
             goalSlotsText.GetComponent<TMP_Text>().text = "You can add " + GoalsList.maxNumGoals + " more goals.";
 
+            if(RetrievingData.mission1Status == "onGoing")
+            {
+                RetrievingData.mission1Status = "completed";
+                RetrievingData.missionList[0].missionStatus = "completed";
+                UpdateMission1Completed();
+            }
             // retrieve goals again
             retrievingData.RetrieveGoals();
         }
@@ -171,9 +178,10 @@ public class PostingData : MonoBehaviour
 
                 if (snapshot.Exists)
                 {
-                    Debug.Log("2");
-                    foreach (var child in snapshot.Children)
+                    Debug.Log("2");// Last code that runs
+                    foreach (var child in snapshot.Children)//This line is not running
                     {
+                        Debug.Log(int.Parse(child.Child("buildingId").Value.ToString()));
                         if (int.Parse(child.Child("buildingId").Value.ToString()) == SocketInteractorFunctions.buildingIdToDelete)
                         {
                             Debug.Log("int.Parse(child.Child(\"buildingId\").Value.ToString(): " + int.Parse(child.Child("buildingId").Value.ToString()));
@@ -236,6 +244,53 @@ public class PostingData : MonoBehaviour
         Destroy(createGoalArea.transform.GetChild(0).gameObject);
     }
 
+    public void UpdateMission1NoAttempt()
+    {
+        dbReference.Child("missionLogs/" + userId + "/mission1/missionStatus").SetValueAsync("noAttempt");
+
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
+    }
+
+    public void UpdateMission2NoAttempt()
+    {
+        dbReference.Child("missionLogs/" + userId + "/mission2/missionStatus").SetValueAsync("noAttempt");
+
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
+    }
+
+    public void UpdateMission1Ongoing()
+    {
+        dbReference.Child("missionLogs/" + userId + "/mission1/missionStatus").SetValueAsync("onGoing");
+
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
+    }
+
+    public void UpdateMission2Ongoing()
+    {
+        dbReference.Child("missionLogs/" + userId + "/mission2/missionStatus").SetValueAsync("onGoing");
+
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
+    }
+    public void UpdateMission1Completed()
+    {
+        dbReference.Child("missionLogs/" + userId + "/mission1/missionStatus").SetValueAsync("completed");
+        retrievingData.RetrieveMissionLogs();
+
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
+    }
+
+    public void UpdateMission2Completed()
+    {
+        dbReference.Child("missionLogs/" + userId + "/mission2/missionStatus").SetValueAsync("completed");
+        retrievingData.RetrieveMissionLogs();
+        // update timestamp
+        UpdatePlayerStatsTimestamp();
+    }
     // IEnumerator DeleteAndCreateBuildingData()
     // {
     //     DeleteBuildingData();

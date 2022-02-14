@@ -11,6 +11,8 @@ public class ObjectId : MonoBehaviour
     public float objectId;
     public string objectType;
 
+    public bool fromDatabase;
+
     public static List<float> allObjectIds = new List<float>();
 
     private void Start()
