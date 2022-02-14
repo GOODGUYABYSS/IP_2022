@@ -42,22 +42,15 @@ public class Control : MonoBehaviour
 
     public void GetBuildingStuff()
     {
-        Debug.Log("Hello 10");
         RetrieveBuildingData();
-        Debug.Log("Hello 11");
     }
 
     // What this function does is converts the information from firebase or any other save system into the original Unity game object that was saved.
     public void GenerateBuilding(BuildingData buildingData)
     {
-        Debug.Log("Hello 7");
         GameObject spawnedObj; // Stores an instantiated game object for use by other processes.
 
-        Debug.Log("Hello 6");
-
         spawnedObj = Instantiate(defaultBuildingGameObject); // Creates a base prefab that will be modified based on the information from the save system.
-
-        Debug.Log("Hello 5");
 
         // The below 3 statements create a Vector3 for position, rotation, and scale respectively based on their respective bool arrays.
         // These Vector3s will ultimately be used to set the attributes of the Transform of the instantiated game object.
@@ -65,14 +58,14 @@ public class Control : MonoBehaviour
         Vector3 rotation = new Vector3(buildingData.transformRotation[0], buildingData.transformRotation[1], buildingData.transformRotation[2]);
         Vector3 scale = new Vector3(buildingData.transformScale[0], buildingData.transformScale[1], buildingData.transformScale[2]);
 
-        Debug.Log("Hello 4");
+
 
         // The below 3 statements set the transform attributes of the instantiated game object.
         spawnedObj.transform.position = position;
         spawnedObj.transform.Rotate(rotation);
         spawnedObj.transform.localScale = scale;
 
-        Debug.Log("Hello 3");
+ 
 
         spawnedObj.GetComponent<ObjectId>().objectId = buildingData.buildingId; // This statement sets the building ID of the instantiated game object.
         spawnedObj.GetComponent<ObjectId>().fromDatabase = true;

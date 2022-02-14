@@ -40,6 +40,7 @@ public class RetrievingData : MonoBehaviour
     public static int uselessBuildingCount;
 
     public int goalSlotsLeft;
+    public int targetNumberOfGoals;
 
     //Goals that already exist
     public GameObject rowPrefab;
@@ -54,7 +55,7 @@ public class RetrievingData : MonoBehaviour
     private void Awake()
     {
         dbReference = FirebaseDatabase.DefaultInstance.RootReference;
-        
+
     }
 
     // Start is called before the first frame update
@@ -77,20 +78,16 @@ public class RetrievingData : MonoBehaviour
             // retrieve the player data
             RetrievePlayerStats();
 
+            RetrieveGoals();
             RetrieveMissionLogs();
 
             RetrieveMission1Status();
             RetrieveMission2Status();
-            Debug.Log(mission1Status);
 
 
-            GetLeaderboard();
-
-            RetrieveGoals();
+            //GetLeaderboard();
 
             controlScript.GetBuildingStuff();
-
-            
 
             // stop the loop
             anotherLoginRetrievingData = false;
@@ -112,7 +109,7 @@ public class RetrievingData : MonoBehaviour
 
                 if (snapshot.Exists)
                 {
-                    
+
 
                     foreach (DataSnapshot d in snapshot.Children)
                     {
@@ -127,8 +124,6 @@ public class RetrievingData : MonoBehaviour
                     shopScript.DisplayShopItems();
                     swipeMenu.GetOnlyStoreItems();
                 }
-
-                
             }
         });
     }
@@ -158,6 +153,7 @@ public class RetrievingData : MonoBehaviour
 
                     // set the max number of goals for the player
                     GoalsList.maxNumGoals = goalSlotsLeft;
+                    Debug.Log(GoalsList.maxNumGoals);
                 }
             }
         });
@@ -206,8 +202,7 @@ public class RetrievingData : MonoBehaviour
 
     public void UpdateGoalsList()
     {
-        int goalSlotsLeft = GoalsList.maxNumGoals;
-        goalSlotsText.GetComponent<TMP_Text>().text = "You can add " + goalSlotsLeft + " more goals.";
+        goalSlotsText.GetComponent<TMP_Text>().text = "You can add " + GoalsList.maxNumGoals + " more goals.";
         goalCompletedText.GetComponent<TMP_Text>().text = numberOfGoalsCompleted + " goals completed";
         // show the original prefab so that it can be instantiated
         rowPrefab.SetActive(true);
@@ -247,7 +242,7 @@ public class RetrievingData : MonoBehaviour
             pushKey = goalsAndKeys[keyValue.Key];
 
             // add functions to the buttons of the instantiated prefab
-            buttonDetails[0].onClick.AddListener(delegate() { EditGoal(buttonDetails[0].gameObject); });
+            buttonDetails[0].onClick.AddListener(delegate () { EditGoal(buttonDetails[0].gameObject); });
             buttonDetails[1].onClick.AddListener(delegate () { ConfirmEditGoal(pushKey, buttonDetails[0].gameObject, buttonDetails[1].gameObject); });
             buttonDetails[2].onClick.AddListener(delegate () { GoalCompleted(pushKey, buttonDetails[2].gameObject); });
             buttonDetails[3].onClick.AddListener(delegate () { DeleteGoal(pushKey, buttonDetails[3].gameObject); });
@@ -272,7 +267,7 @@ public class RetrievingData : MonoBehaviour
             editButton.GetComponentInChildren<TMP_Text>().text = "Cancel";
         }
 
-        else if(editButton.GetComponentInChildren<TMP_Text>().text == "Cancel")
+        else if (editButton.GetComponentInChildren<TMP_Text>().text == "Cancel")
         {
             editButton.GetComponentInChildren<TMP_Text>().text = "Edit";
         }
@@ -370,7 +365,12 @@ public class RetrievingData : MonoBehaviour
         dbReference.Child("players/" + userId + "/updatedOn").SetValueAsync(timestamp);
 
         //Everytime they click completed, it will check if the mission 2 is ongoing 
-        RetrieveTargetNumberOfGoals();
+        RetrieveMission2Status();
+
+        if (mission2Status == "onGoing")
+        {
+            RetrieveTargetNumberOfGoals();
+        }
     }
 
     public void DeleteGoal(string key, GameObject deleteButton)
@@ -462,85 +462,86 @@ public class RetrievingData : MonoBehaviour
     {
         dbReference.Child("missionLogs/" + userId + "/mission1/missionStatus").GetValueAsync().ContinueWithOnMainThread(task =>
         {
-        if (task.IsFaulted || task.IsCanceled)
+            if (task.IsFaulted || task.IsCanceled)
             {
-            Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-            return;
-        }
-
-            else if (task.IsCompleted)
-        {
-            DataSnapshot snapshot = task.Result;
-
-            if (snapshot.Exists)
-            {
-                mission1Status = snapshot.Value.ToString();
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
             }
-        }
-    });
-    }
-
-public void RetrieveMission2Status()
-{
-    dbReference.Child("missionLogs/" + userId + "/mission2/missionsStatus").GetValueAsync().ContinueWithOnMainThread(task =>
-    {
-    if (task.IsFaulted || task.IsCanceled)
-            {
-        Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-        return;
-    }
 
             else if (task.IsCompleted)
-    {
-        DataSnapshot snapshot = task.Result;
+            {
+                DataSnapshot snapshot = task.Result;
 
-        if (snapshot.Exists)
-        {
-            mission2Status = snapshot.Value.ToString();
-        }
+                if (snapshot.Exists)
+                {
+                    mission1Status = snapshot.Value.ToString();
+                }
+            }
+        });
     }
-});
+
+    public void RetrieveMission2Status()
+    {
+        dbReference.Child("missionLogs/" + userId + "/mission2/missionStatus").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
+            }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    mission2Status = snapshot.Value.ToString();
+                }
+            }
+        });
 
     }
     public void RetrieveTargetNumberOfGoals()
     {
-        int targetNumberOfGoals = 0;
+        // retrieve the most updated number of goals completed
+        RetrieveNumberOfGoalsCompleted();
 
-        // run all of this under an "if" statement only if mission 2 status is "onGoing"
-        RetrieveMission2Status();
-
-        if (mission2Status == "onGoing")
+        dbReference.Child("missionLogs/" + userId + "/mission2/targetNumberOfGoals").GetValueAsync().ContinueWithOnMainThread(task =>
         {
-            // retrieve the most updated number of goals completed
-            RetrieveNumberOfGoalsCompleted();
-
-            dbReference.Child("missionLogs/" + userId + "/mission2/targetNumberOfGoals").GetValueAsync().ContinueWithOnMainThread(task =>
+            if (task.IsFaulted || task.IsCanceled)
             {
-                if (task.IsFaulted || task.IsCanceled)
-                {
-                    Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-                    return;
-                }
-
-                else if (task.IsCompleted)
-                {
-                    DataSnapshot snapshot = task.Result;
-
-                    if (snapshot.Exists)
-                    {
-                        targetNumberOfGoals = int.Parse(snapshot.Value.ToString());
-                    }
-                }
-            });
-
-            if (numberOfGoalsCompleted == targetNumberOfGoals)
-            {
-                // refer back to update mission2completed function and run it below
-
-                // delete target number of goals in firebase
-                dbReference.Child("missionLogs/" + userId + "/mission2/targetNumberOfGoals").SetValueAsync(null);
-
+                Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
+                return;
             }
+
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+
+                if (snapshot.Exists)
+                {
+                    targetNumberOfGoals = int.Parse(snapshot.Value.ToString());
+                    Debug.Log(targetNumberOfGoals);
+                }
+            }
+        });
+
+        if (numberOfGoalsCompleted == targetNumberOfGoals)
+        {
+            // refer back to update mission2completed function and run it below
+            mission2Status = "completed";
+
+            dbReference.Child("missionLogs/" + userId + "/mission2/missionStatus").SetValueAsync("completed");
+
+            if (Shop.buttonList.Count == 1)
+            {
+                Shop.buttonList["mission2"].SetActive(true);
+            }
+
+            // delete target number of goals in firebase
+            dbReference.Child("missionLogs/" + userId + "/mission2/targetNumberOfGoals").SetValueAsync(null);
+
         }
     }
 
@@ -567,6 +568,8 @@ public void RetrieveMission2Status()
     }
     public void RetrieveMissionLogs()
     {
+        missionList.Clear();
+
         dbReference.Child("missionLogs/" + userId).GetValueAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted || task.IsCanceled)
@@ -589,22 +592,18 @@ public void RetrieveMission2Status()
 
                     foreach (MissionLogs mission in missionList)
                     {
+                        int creditGeneration = 3;
+
                         Debug.LogFormat("content: {0}, status: {1}, name: {2}", mission.missionContent, mission.missionStatus, mission.buildingName);
 
-                        if(mission.missionStatus == "onGoing")
+                        if (mission.missionStatus == "onGoing")
                         {
-
-                            int creditGeneration = 3;
-                            Debug.Log("lol");
                             if (missionList[1].missionStatus == "onGoing")
                             {
                                 creditGeneration = 5;
                             }
 
                             shopScript.MissionPrefab(mission.buildingName, creditGeneration);
-                            //Spawn the mission Prefab
-                            //link the function from the shop script
-
                         }
                     }
                 }
@@ -613,6 +612,4 @@ public void RetrieveMission2Status()
         });
 
     }
-
-
 }

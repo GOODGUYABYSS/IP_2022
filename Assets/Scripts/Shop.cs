@@ -40,6 +40,8 @@ public class Shop : MonoBehaviour
 
     public static bool mouseClicked = true;
 
+    public static Dictionary<string, GameObject> buttonList = new Dictionary<string, GameObject>();
+
     public void DisplayShopItems()
     {
 
@@ -54,7 +56,10 @@ public class Shop : MonoBehaviour
 
         foreach (Transform item in MissionArea)
         {
-            Destroy(item.gameObject);
+            if (item.name != "MissionPrefab")
+            {
+                Destroy(item.gameObject);
+            }
         }
 
         // destroy the game object that are placeholders
@@ -92,7 +97,16 @@ public class Shop : MonoBehaviour
 
     public void MissionPrefab(string Item, int CreditGeneration)
     {
+        // set mission prefab to true so that it can be instantiated
+        Mission.SetActive(true);
 
+        //foreach (Transform item in MissionArea)
+        //{
+        //    if (item.name != "MissionPrefab")
+        //    {
+        //        Destroy(item.gameObject);
+        //    }
+        //}
 
         var Mission1Data = RetrievingData.missionList[0];
         var Mission2Data = RetrievingData.missionList[1];
@@ -109,26 +123,44 @@ public class Shop : MonoBehaviour
         MissionVar[0].text = MissionData.missionContent;
         MissionVar[1].text = "Complete to obtain " + MissionData.buildingName;
         var button = mission.GetComponentsInChildren<Button>();
-        button[0].gameObject.SetActive(false);
-        var ClaimMe = button[0].GetComponent<Button>();
 
-
-        if (Mission1Data.missionStatus == "completed")
+        if (Item == RetrievingData.missionList[0].buildingName)
         {
-            button[0].gameObject.SetActive(true);
-            ClaimMe.onClick.AddListener(() => SpawnItem(building1, CreditGeneration));
-            
-           
+            button[0].onClick.AddListener(() => DestroyMissionPrefab(mission));
+            button[0].onClick.AddListener(() => SpawnItem(building1, CreditGeneration));
+            buttonList.Add("mission1", button[0].gameObject);
+            button[0].gameObject.SetActive(false);
         }
 
-        if (Mission2Data.missionStatus == "completed")
+        else if (Item == RetrievingData.missionList[1].buildingName)
         {
-            button[0].gameObject.SetActive(true);
-            ClaimMe.onClick.AddListener(() => SpawnItem(building3, CreditGeneration));
-            
-      
+            button[0].onClick.AddListener(() => DestroyMissionPrefab(mission));
+            button[0].onClick.AddListener(() => SpawnItem(building3, CreditGeneration));
+            buttonList.Add("mission2", button[0].gameObject);
+            button[0].gameObject.SetActive(false);
         }
 
+
+        //if (Mission1Data.missionStatus == "completed")
+        //{
+        //    button[0].gameObject.SetActive(true);
+        //    ClaimMe.onClick.AddListener(() => SpawnItem(building1, CreditGeneration));
+
+
+        //}
+
+        //if (Mission2Data.missionStatus == "completed")
+        //{
+        //    button[0].gameObject.SetActive(true);
+        //    ClaimMe.onClick.AddListener(() => SpawnItem(building3, CreditGeneration));
+        //}
+
+    }
+
+    public void DestroyMissionPrefab(GameObject missionPrefab)
+    {
+        Destroy(missionPrefab);
+        Debug.Log("Destroyed");
     }
 
 
@@ -192,6 +224,8 @@ public class Shop : MonoBehaviour
             else
             {//spawn m2 prefab
                 MissionPrefab(Item, CreditGeneration);
+                RetrievingData.mission2Status = "onGoing";
+                postDataThings.StartMission2();
                 postDataThings.UpdateMission2Ongoing();
             }
         }

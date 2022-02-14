@@ -80,9 +80,10 @@ public class PostingData : MonoBehaviour
             if(RetrievingData.mission1Status == "onGoing")
             {
                 RetrievingData.mission1Status = "completed";
-                RetrievingData.missionList[0].missionStatus = "completed";
+                Shop.buttonList["mission1"].SetActive(true);
                 UpdateMission1Completed();
             }
+
             // retrieve goals again
             retrievingData.RetrieveGoals();
         }
@@ -233,10 +234,7 @@ public class PostingData : MonoBehaviour
             {
                 Debug.Log("Finish setting up your goal");
             }
-
-
         }
-
     }
 
     public void CancelGoalPrefab()
@@ -278,7 +276,6 @@ public class PostingData : MonoBehaviour
     public void UpdateMission1Completed()
     {
         dbReference.Child("missionLogs/" + userId + "/mission1/missionStatus").SetValueAsync("completed");
-        retrievingData.RetrieveMissionLogs();
 
         // update timestamp
         UpdatePlayerStatsTimestamp();
@@ -287,10 +284,20 @@ public class PostingData : MonoBehaviour
     public void UpdateMission2Completed()
     {
         dbReference.Child("missionLogs/" + userId + "/mission2/missionStatus").SetValueAsync("completed");
-        retrievingData.RetrieveMissionLogs();
+
         // update timestamp
         UpdatePlayerStatsTimestamp();
     }
+
+    public void StartMission2()
+    {
+        retrievingData.RetrieveNumberOfGoalsCompleted();
+
+        int targetNumberOfGoals = RetrievingData.numberOfGoalsCompleted + 3;
+
+        dbReference.Child("missionLogs/" + userId + "/mission2/targetNumberOfGoals").SetValueAsync(targetNumberOfGoals);
+    }
+
     // IEnumerator DeleteAndCreateBuildingData()
     // {
     //     DeleteBuildingData();
