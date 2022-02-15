@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using Firebase.Database;
 using Firebase.Extensions;
+using TMPro;
 
 public class Control : MonoBehaviour
 {
@@ -22,12 +23,11 @@ public class Control : MonoBehaviour
 
     public DatabaseReference dbReference;
 
-    public static bool allowDisplayConfirmPlacementButton = false;
-
     private float totalCredits;
     private int numBuildings;
     private int multiplier;
 
+    public TMP_Text creditDisplay;
 
     private void Awake()
     {
@@ -38,6 +38,12 @@ public class Control : MonoBehaviour
         confirmPlacementButton.SetActive(false);
 
         StartCoroutine(EarnMoney());
+        
+    }
+
+    private void Update()
+    {
+        creditDisplay.text = RetrievingData.credits.ToString();
     }
 
     public void GetBuildingStuff()
@@ -58,28 +64,26 @@ public class Control : MonoBehaviour
         Vector3 rotation = new Vector3(buildingData.transformRotation[0], buildingData.transformRotation[1], buildingData.transformRotation[2]);
         Vector3 scale = new Vector3(buildingData.transformScale[0], buildingData.transformScale[1], buildingData.transformScale[2]);
 
-
-
         // The below 3 statements set the transform attributes of the instantiated game object.
         spawnedObj.transform.position = position;
         spawnedObj.transform.Rotate(rotation);
         spawnedObj.transform.localScale = scale;
 
- 
-
         spawnedObj.GetComponent<ObjectId>().objectId = buildingData.buildingId; // This statement sets the building ID of the instantiated game object.
         spawnedObj.GetComponent<ObjectId>().fromDatabase = true;
+        spawnedObj.GetComponent<ObjectId>().creditGeneration = buildingData.creditGeneration;
 
-        Debug.Log("spawnedObj.GetComponent<ObjectId>().fromDatabase: " + spawnedObj.GetComponent<ObjectId>().fromDatabase);
+        Debug.Log("spawnedObj.GetComponent<ObjectId>().objectId: " + spawnedObj.GetComponent<ObjectId>().objectId);
+
+        ObjectId.creditGenerationSum += buildingData.creditGeneration;
+        ObjectId.allObjectIds.Add(buildingData.buildingId);
 
         // The below foreach loop loops through all the meshes to see what mesh name matches the mesh ID (stored mesh name) of the saved data and then sets the game object to have that mesh afterwards.
         foreach (MeshFilter mesh in allMeshes)
         {
-            Debug.Log("meshfilter.name: " + mesh.sharedMesh.name);
             // The below if statement checks whether the mesh ID matches the mesh name.
             if (mesh.sharedMesh.name == (buildingData.meshId).Substring(0, buildingData.meshId.Length - 9))
             {
-                Debug.Log("(buildingData.meshId).Substring(0, buildingData.meshId.Length - 9): " + (buildingData.meshId).Substring(0, buildingData.meshId.Length - 9));
                 spawnedObj.GetComponent<MeshFilter>().sharedMesh = mesh.sharedMesh;
             }
         }
@@ -107,8 +111,6 @@ public class Control : MonoBehaviour
                 {
                     BuildingData bd = JsonUtility.FromJson<BuildingData>(snapshot.GetRawJsonValue());
 
-                    Debug.Log("bd.meshId: " + bd.meshId);
-
                     foreach (DataSnapshot d in snapshot.Children)
                     {
                         BuildingData buildingD = JsonUtility.FromJson<BuildingData>(d.GetRawJsonValue());
@@ -118,7 +120,6 @@ public class Control : MonoBehaviour
 
                     foreach (BuildingData buildingD in allBuildingData)
                     {
-                        Debug.Log("allBuildingData[0]: " + allBuildingData[0]);
                         GenerateBuilding(buildingD);
                     }
                 }
@@ -165,9 +166,20 @@ public class Control : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(60f);
+            if (!RetrievingData.anotherLoginRetrievingData)
+            {
+                RetrievingData.credits += ObjectId.creditGenerationSum;
+                Debug.Log("RetrievingData.credits: " + RetrievingData.credits);
+                
+                dbReference.Child("playerStats/" + Authentication.userId + "/credits").SetValueAsync(RetrievingData.credits);
+            }
 
-            totalCredits += multiplier * numBuildings;
+            //else
+            //{
+            //    creditDisplay.text = "Loading";
+            //}
+
+            yield return new WaitForSeconds(60f);
         }
     }
 }

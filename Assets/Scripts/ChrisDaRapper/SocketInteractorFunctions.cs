@@ -16,7 +16,6 @@ public class SocketInteractorFunctions : MonoBehaviour
     {
 
         currentGameObject = GetComponent<XRSocketInteractor>().interactablesSelected[0].transform.gameObject;
-        Debug.Log("currentGameObject.GetComponent<ObjectId>().fromDatabase: " + currentGameObject.GetComponent<ObjectId>().fromDatabase);
 
         if (!currentGameObject.GetComponent<ObjectId>().fromDatabase)
         {
@@ -30,7 +29,10 @@ public class SocketInteractorFunctions : MonoBehaviour
             Control.confirmPlacementButtonStatic.SetActive(true); // Displays the "Confirm Placement" button when an object enters a socket interactor.
 
             Debug.Log($"Entered SelectGameObject() function.\nGameobject {currentGameObject.name} entered.");
+
         }
+
+        Shop.mouseClicked = true;
     }
 
     // The UnselectGameObject() function controls what will occur when the object in the XRSocketInteractor is removed. I.e. What will happen when the current game object is removed.

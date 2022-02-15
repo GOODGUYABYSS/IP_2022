@@ -13,6 +13,9 @@ public class ObjectId : MonoBehaviour
 
     public bool fromDatabase;
 
+    public int creditGeneration;
+    public static int creditGenerationSum;
+
     public static List<float> allObjectIds = new List<float>();
 
     private void Start()
@@ -27,7 +30,7 @@ public class ObjectId : MonoBehaviour
 
         while (idExists)
         {
-            id = Random.Range(1000000000f, 9999999999f);
+            id = Random.Range(0, 9999);
 
             if (allObjectIds.Contains(id) || id == 0)
             {

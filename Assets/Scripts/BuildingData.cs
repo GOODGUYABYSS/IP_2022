@@ -7,11 +7,6 @@ public class BuildingData
     // This class contains all the data related to the building, but broken down into C#'s default variable types so that it can be stored in a database or on a save file.
     // This class has no methods because it is meant to only contain information about the Building class it relates to.
 
-    public static int numAllBuildings;
-
-    public static int numGoalAddingBuildings;
-    public static int numMoneyGenBuildings;
-
     // The below 3 variables contain transform information about a building game object.
     public float[] transformPosition = new float[3];
     public float[] transformRotation = new float[3];
@@ -30,9 +25,11 @@ public class BuildingData
 
     public bool fromDatabase = false;
 
+    public int creditGeneration;
+
     // public bool storedInDatabase;
 
-    public BuildingData(float[] transformPosition, float[] transformRotation, float[] transformScale, string buildingType, string meshId, float buildingId, int[] cellLocation = null)
+    public BuildingData(float[] transformPosition, float[] transformRotation, float[] transformScale, string buildingType, string meshId, float buildingId, int creditGeneration, int[] cellLocation = null)
     {
         // This is the BuildingData object constructor.
 
@@ -44,6 +41,8 @@ public class BuildingData
         this.buildingId = buildingId;
         this.buildingType = buildingType;
         this.cellLocation = cellLocation;
+
+        this.creditGeneration = creditGeneration;
     }
 
     public BuildingData()

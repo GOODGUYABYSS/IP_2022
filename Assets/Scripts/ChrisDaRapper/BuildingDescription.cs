@@ -10,7 +10,7 @@ public class BuildingDescription : MonoBehaviour
     // The building description class contains information describing a building, but in Unity formats like Transform and Vector3.
     // This class is meant to be a component in its respective game object and stores unique information about it, which is why it derives from the MonoBehaviour class.
 
-    // public static bool mouseClicked = false;
+    public static List<BoxCollider> allBoxColliders = new List<BoxCollider>();
 
     private void Start()
     {
@@ -26,11 +26,10 @@ public class BuildingDescription : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) && !Shop.mouseClicked)
         {
-            Debug.Log("This works");
-            GetComponent<BoxCollider>().enabled = true;
-
-            Debug.Log("GetComponent<BoxCollider>().enabled: " + GetComponent<BoxCollider>().enabled);
-            Debug.Log("Current gameObject: " + gameObject.name);
+            foreach (BoxCollider boxColider in allBoxColliders)
+            {
+                boxColider.enabled = true;
+            }
 
             Shop.mouseClicked = true;
         }
@@ -44,6 +43,7 @@ public class BuildingDescription : MonoBehaviour
         string buildingType = gameObject.GetComponent<ObjectId>().objectType;
         float buildingId = gameObject.GetComponent<ObjectId>().objectId;
         string meshId = gameObject.GetComponent<MeshFilter>().mesh.name;
+        int creditGeneration = gameObject.GetComponent<ObjectId>().creditGeneration;
 
         float[] transformPosition = new float[3];
         float[] transformRotation = new float[3];
@@ -66,7 +66,7 @@ public class BuildingDescription : MonoBehaviour
         transformScale[1] = gameObjectTransform.localScale.y;
         transformScale[2] = gameObjectTransform.localScale.z;
 
-        BuildingData buildingData = new BuildingData(transformPosition, transformRotation, transformScale, buildingType, meshId, buildingId);
+        BuildingData buildingData = new BuildingData(transformPosition, transformRotation, transformScale, buildingType, meshId, buildingId, creditGeneration);
 
         buildingData.fromDatabase = true;
 
@@ -74,31 +74,4 @@ public class BuildingDescription : MonoBehaviour
 
         return buildingData;
     }
-
-    public static void AddGoalBuilding()
-    {
-        BuildingData.numGoalAddingBuildings += 1;
-    }
-
-    public static void AddMoneyBuilding()
-    {
-        BuildingData.numMoneyGenBuildings += 1;
-    }
-
-    public static void CalculateTotalBuildings()
-    {
-        BuildingData.numAllBuildings = BuildingData.numMoneyGenBuildings + BuildingData.numGoalAddingBuildings;
-    }
-
-    public static float GetCreditReward(float multiplier = 1)
-    {
-        return multiplier * BuildingData.numMoneyGenBuildings;
-    }
-
-    public static float GetGoalReward(float defaultGoalQuantity = 3)
-    {
-        return defaultGoalQuantity * BuildingData.numGoalAddingBuildings;
-    }
-
-
 }

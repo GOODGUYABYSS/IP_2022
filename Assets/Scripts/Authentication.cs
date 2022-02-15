@@ -18,12 +18,16 @@ public class Authentication : MonoBehaviour
 
     public bool test;
 
+    public GameObject signUpUI;
+    public GameObject loginUI;
+
     [SerializeField]
     GameObject usernameInputSignUp, emailInputSignUp, passwordInputSignUp, emailInputLogin, passwordInputLogin, emailInputForgetPassword, errorSignUp, errorLogin, errorForgetPassword;
     [SerializeField]
     string errorSignUpMessage, errorLoginMessage, errorForgetPasswordMessage;
 
     public static bool loggedIn;
+    public static bool signedUp;
 
     private void Awake()
     {
@@ -43,6 +47,12 @@ public class Authentication : MonoBehaviour
         errorLogin.GetComponent<TMP_Text>().text = errorLoginMessage;
         errorSignUp.GetComponent<TMP_Text>().text = errorSignUpMessage;
         errorForgetPassword.GetComponent<TMP_Text>().text = errorForgetPasswordMessage;
+
+        if (signedUp)
+        {
+            signUpUI.SetActive(false);
+            loginUI.SetActive(true);
+        }
 
         // check if user is logged in
         if (loggedIn)
@@ -83,10 +93,10 @@ public class Authentication : MonoBehaviour
                 userId = newPlayer.UserId;
                 email = newPlayer.Email;
 
-                loggedIn = true;
+                signedUp = true;
 
                 CreateNewPlayer(userId, usernameSignUp, email, true);
-                CreatePlayerStats(userId, usernameSignUp, 0, 0, 0, 1, 100, 0);
+                CreatePlayerStats(userId, usernameSignUp, 0, 1, 100, 0);
                 CreateMissionLogs(userId, "mission1", "Create a financial goal", "noAttempt", "Building1");
                 CreateMissionLogs(userId, "mission2", "Complete 3 financial goals", "noAttempt", "Building3");
             }
@@ -100,9 +110,9 @@ public class Authentication : MonoBehaviour
         dbReference.Child("players/" + uuid).SetRawJsonValueAsync(createNewPlayer.NewPlayerToJson());
     }
 
-    void CreatePlayerStats(string uuid, string username, int usefulBuildingCount, int uselessBuildingCount, int totalBuildingCount, int goalSlotsLeft, int credits, int numberOfGoalsCompleted)
+    void CreatePlayerStats(string uuid, string username, int totalBuildingCount, int goalSlotsLeft, int credits, int numberOfGoalsCompleted)
     {
-        PlayerStats createPlayerStats = new PlayerStats(username, uselessBuildingCount, usefulBuildingCount, totalBuildingCount, goalSlotsLeft, credits, numberOfGoalsCompleted);
+        PlayerStats createPlayerStats = new PlayerStats(username, totalBuildingCount, goalSlotsLeft, credits, numberOfGoalsCompleted);
 
         dbReference.Child("playerStats/" + uuid).SetRawJsonValueAsync(createPlayerStats.PlayerStatsToJson());
     }
@@ -197,8 +207,19 @@ public class Authentication : MonoBehaviour
             RetrievingData.credits = 0;
             RetrievingData.numberOfGoalsCompleted = 0;
             RetrievingData.totalBuildingCount = 0;
-            RetrievingData.usefulBuildingCount = 0;
-            RetrievingData.uselessBuildingCount = 0;
+            RetrievingData.storeList.Clear();
+            RetrievingData.missionList.Clear();
+            RetrievingData.mission1Status = "noAttempt";
+            RetrievingData.mission2Status = "noAttempt";
+
+            Shop.mouseClicked = true;
+            Shop.buttonList.Clear();
+
+
+            BuildingDescription.allBoxColliders.Clear();
+            Control.allBuildingData.Clear();
+            ObjectId.creditGenerationSum = 0;
+            ObjectId.allObjectIds.Clear();
 
             GoalsList.maxNumGoals = 0;
 

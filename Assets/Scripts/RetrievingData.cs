@@ -6,6 +6,7 @@ using Firebase.Database;
 using Firebase.Extensions;
 using TMPro;
 using System;
+using System.Threading.Tasks;
 
 public class RetrievingData : MonoBehaviour
 {
@@ -36,8 +37,6 @@ public class RetrievingData : MonoBehaviour
     private int newNumberOfGoalsCompleted;
 
     public static int totalBuildingCount;
-    public static int usefulBuildingCount;
-    public static int uselessBuildingCount;
 
     public int goalSlotsLeft;
     public int targetNumberOfGoals;
@@ -77,13 +76,13 @@ public class RetrievingData : MonoBehaviour
 
             // retrieve the player data
             RetrievePlayerStats();
-
+            
             RetrieveGoals();
+
             RetrieveMissionLogs();
 
             RetrieveMission1Status();
             RetrieveMission2Status();
-
 
             //GetLeaderboard();
 
@@ -92,6 +91,9 @@ public class RetrievingData : MonoBehaviour
             // stop the loop
             anotherLoginRetrievingData = false;
         }
+
+        goalSlotsText.GetComponent<TMP_Text>().text = "You can add " + GoalsList.maxNumGoals + " more goals.";
+        goalCompletedText.GetComponent<TMP_Text>().text = numberOfGoalsCompleted + " goals completed";
     }
     public void RetrieveStoreThings()
     {
@@ -147,8 +149,6 @@ public class RetrievingData : MonoBehaviour
                     credits = int.Parse(snapshot.Child("credits").Value.ToString());
                     numberOfGoalsCompleted = int.Parse(snapshot.Child("numberOfGoalsCompleted").Value.ToString());
                     totalBuildingCount = int.Parse(snapshot.Child("totalBuildingCount").Value.ToString());
-                    usefulBuildingCount = int.Parse(snapshot.Child("usefulBuildingCount").Value.ToString());
-                    uselessBuildingCount = int.Parse(snapshot.Child("uselessBuildingCount").Value.ToString());
                     goalSlotsLeft = int.Parse(snapshot.Child("goalSlotsLeft").Value.ToString());
 
                     // set the max number of goals for the player
@@ -159,14 +159,14 @@ public class RetrievingData : MonoBehaviour
         });
     }
 
-    public void RetrieveGoals()
+    public async void RetrieveGoals()
     {
         // clear the dictionaries that store the data from firebase
         goalsAndKeys.Clear();
         goalsAndHowToAchieve.Clear();
 
         // retrieve the pushKey, goalContent, and howToAchieve in the order which goal was created first
-        dbReference.Child("currentGoals/" + userId).OrderByChild("createdOn").GetValueAsync().ContinueWithOnMainThread(task =>
+        await dbReference.Child("currentGoals/" + userId).OrderByChild("createdOn").GetValueAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted || task.IsCanceled)
             {
@@ -195,15 +195,15 @@ public class RetrievingData : MonoBehaviour
                 }
 
                 // update the My Goals UI
-                UpdateGoalsList();
+                //UpdateGoalsList();
             }
         });
+
+        UpdateGoalsList();
     }
 
     public void UpdateGoalsList()
     {
-        goalSlotsText.GetComponent<TMP_Text>().text = "You can add " + GoalsList.maxNumGoals + " more goals.";
-        goalCompletedText.GetComponent<TMP_Text>().text = numberOfGoalsCompleted + " goals completed";
         // show the original prefab so that it can be instantiated
         rowPrefab.SetActive(true);
 
@@ -532,12 +532,7 @@ public class RetrievingData : MonoBehaviour
             // refer back to update mission2completed function and run it below
             mission2Status = "completed";
 
-            dbReference.Child("missionLogs/" + userId + "/mission2/missionStatus").SetValueAsync("completed");
-
-            if (Shop.buttonList.Count == 1)
-            {
-                Shop.buttonList["mission2"].SetActive(true);
-            }
+            Shop.buttonList["mission2"].SetActive(true);
 
             // delete target number of goals in firebase
             dbReference.Child("missionLogs/" + userId + "/mission2/targetNumberOfGoals").SetValueAsync(null);
@@ -596,9 +591,9 @@ public class RetrievingData : MonoBehaviour
 
                         Debug.LogFormat("content: {0}, status: {1}, name: {2}", mission.missionContent, mission.missionStatus, mission.buildingName);
 
-                        if (mission.missionStatus == "onGoing")
+                        if (mission.missionStatus == "onGoing" || mission.missionStatus == "completed")
                         {
-                            if (missionList[1].missionStatus == "onGoing")
+                            if (missionList[1].missionStatus == "onGoing" || missionList[1].missionStatus == "completed")
                             {
                                 creditGeneration = 5;
                             }

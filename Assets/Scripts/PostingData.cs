@@ -16,8 +16,6 @@ public class PostingData : MonoBehaviour
     public static bool anotherLoginPostingData = true;
     public string userId;
 
-    public static bool allowPostingData;
-
     [SerializeField]
     GameObject goalContent, howToAchieve;
 
@@ -246,6 +244,8 @@ public class PostingData : MonoBehaviour
     {
         dbReference.Child("missionLogs/" + userId + "/mission1/missionStatus").SetValueAsync("noAttempt");
 
+        RetrievingData.missionList[0].missionStatus = "noAttempt";
+
         // update timestamp
         UpdatePlayerStatsTimestamp();
     }
@@ -253,6 +253,8 @@ public class PostingData : MonoBehaviour
     public void UpdateMission2NoAttempt()
     {
         dbReference.Child("missionLogs/" + userId + "/mission2/missionStatus").SetValueAsync("noAttempt");
+
+        RetrievingData.missionList[1].missionStatus = "noAttempt";
 
         // update timestamp
         UpdatePlayerStatsTimestamp();
@@ -262,6 +264,8 @@ public class PostingData : MonoBehaviour
     {
         dbReference.Child("missionLogs/" + userId + "/mission1/missionStatus").SetValueAsync("onGoing");
 
+        RetrievingData.missionList[0].missionStatus = "onGoing";
+
         // update timestamp
         UpdatePlayerStatsTimestamp();
     }
@@ -270,12 +274,16 @@ public class PostingData : MonoBehaviour
     {
         dbReference.Child("missionLogs/" + userId + "/mission2/missionStatus").SetValueAsync("onGoing");
 
+        RetrievingData.missionList[1].missionStatus = "onGoing";
+
         // update timestamp
         UpdatePlayerStatsTimestamp();
     }
     public void UpdateMission1Completed()
     {
         dbReference.Child("missionLogs/" + userId + "/mission1/missionStatus").SetValueAsync("completed");
+
+        RetrievingData.missionList[0].missionStatus = "completed";
 
         // update timestamp
         UpdatePlayerStatsTimestamp();
@@ -284,6 +292,8 @@ public class PostingData : MonoBehaviour
     public void UpdateMission2Completed()
     {
         dbReference.Child("missionLogs/" + userId + "/mission2/missionStatus").SetValueAsync("completed");
+
+        RetrievingData.missionList[1].missionStatus = "completed";
 
         // update timestamp
         UpdatePlayerStatsTimestamp();

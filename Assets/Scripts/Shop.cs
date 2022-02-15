@@ -7,8 +7,6 @@ using UnityEditorInternal;
 
 public class Shop : MonoBehaviour
 {
-    public int credits = 100;
-
     [Header("Scripts")]
     public PostingData postDataThings;
 
@@ -127,17 +125,29 @@ public class Shop : MonoBehaviour
         if (Item == RetrievingData.missionList[0].buildingName)
         {
             button[0].onClick.AddListener(() => DestroyMissionPrefab(mission));
+            button[0].onClick.AddListener(() => postDataThings.UpdateMission1NoAttempt());
             button[0].onClick.AddListener(() => SpawnItem(building1, CreditGeneration));
             buttonList.Add("mission1", button[0].gameObject);
             button[0].gameObject.SetActive(false);
+
+            if (MissionData.missionStatus == "completed")
+            {
+                button[0].gameObject.SetActive(true);
+            }
         }
 
         else if (Item == RetrievingData.missionList[1].buildingName)
         {
             button[0].onClick.AddListener(() => DestroyMissionPrefab(mission));
+            button[0].onClick.AddListener(() => postDataThings.UpdateMission2NoAttempt());
             button[0].onClick.AddListener(() => SpawnItem(building3, CreditGeneration));
             buttonList.Add("mission2", button[0].gameObject);
             button[0].gameObject.SetActive(false);
+
+            if (MissionData.missionStatus == "completed")
+            {
+                button[0].gameObject.SetActive(true);
+            }
         }
 
 
@@ -198,11 +208,11 @@ public class Shop : MonoBehaviour
         if (tag == "Building2")
         {
             Debug.Log("PaySomeMoney");
-            if (credits >= Price)
+            if (RetrievingData.credits >= Price)
             {
                 SpawnItem(building2);
-                credits = credits - Price;
-                Debug.Log("How much money you have left:" + credits);
+                RetrievingData.credits = RetrievingData.credits - Price;
+                Debug.Log("How much money you have left:" + RetrievingData.credits);
                 GoalsList.maxNumGoals += 1;
             }
             else
@@ -234,12 +244,12 @@ public class Shop : MonoBehaviour
         {
 
             Debug.Log("PaySomeMoney");
-            if (credits >= Price)
+            if (RetrievingData.credits >= Price)
             {
                 SpawnItem(building4);
-                credits = credits - Price;
+                RetrievingData.credits = RetrievingData.credits - Price;
                 GoalsList.maxNumGoals += 1;
-                Debug.Log("How much money you have left:" + credits);
+                Debug.Log("How much money you have left:" + RetrievingData.credits);
             }
 
             else
@@ -251,11 +261,11 @@ public class Shop : MonoBehaviour
         if (tag == "Building5")
         {
             Debug.Log("PaySomeMoney");
-            if (credits >= Price)
+            if (RetrievingData.credits >= Price)
             {
-                credits = credits - Price;
+                RetrievingData.credits = RetrievingData.credits - Price;
                 GoalsList.maxNumGoals += 1;
-                Debug.Log("How much money you have left:" + credits);
+                Debug.Log("How much money you have left:" + RetrievingData.credits);
             }
 
             else
@@ -274,6 +284,8 @@ public class Shop : MonoBehaviour
     {
         // xrObjects.transform.position;
 
+        mouseClicked = true;
+
         GameObject entry = Instantiate(thingToSpawn, position: rightHandController.transform.position, rotation: thingToSpawn.transform.rotation, rightHandController.transform);
 
         entry.transform.localPosition = new Vector3(0, 0, 0);
@@ -281,6 +293,11 @@ public class Shop : MonoBehaviour
         entry.AddComponent<ObjectId>();
 
         ObjectId.CreateObjectId(entry);
+
+        entry.GetComponent<ObjectId>().creditGeneration = creditGeneration;
+        ObjectId.creditGenerationSum += creditGeneration;
+
+        BuildingDescription.allBoxColliders.Add(entry.GetComponent<BoxCollider>());
 
         if (creditGeneration > 0)
         {
@@ -299,8 +316,6 @@ public class Shop : MonoBehaviour
 
         entry.GetComponent<BoxCollider>().enabled = false;
         entry.AddComponent<BuildingDescription>();
-
-        mouseClicked = true;
 
         StartCoroutine(WaitAfterButtonPress());
     }
