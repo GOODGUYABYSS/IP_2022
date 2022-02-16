@@ -242,10 +242,12 @@ public class RetrievingData : MonoBehaviour
             pushKey = goalsAndKeys[keyValue.Key];
 
             // add functions to the buttons of the instantiated prefab
-            buttonDetails[0].onClick.AddListener(delegate () { EditGoal(buttonDetails[0].gameObject); });
+            buttonDetails[0].onClick.AddListener(delegate () { EditGoal(buttonDetails[0].gameObject, buttonDetails[1].gameObject); });
             buttonDetails[1].onClick.AddListener(delegate () { ConfirmEditGoal(pushKey, buttonDetails[0].gameObject, buttonDetails[1].gameObject); });
             buttonDetails[2].onClick.AddListener(delegate () { GoalCompleted(pushKey, buttonDetails[2].gameObject); });
             buttonDetails[3].onClick.AddListener(delegate () { DeleteGoal(pushKey, buttonDetails[3].gameObject); });
+
+            buttonDetails[1].gameObject.SetActive(false);
 
         }
 
@@ -253,7 +255,7 @@ public class RetrievingData : MonoBehaviour
         rowPrefab.SetActive(false);
     }
 
-    public void EditGoal(GameObject editButton)
+    public void EditGoal(GameObject editButton, GameObject confirmButton)
     {
         string oldGoalContent, oldHowToAchieve;
 
@@ -265,11 +267,15 @@ public class RetrievingData : MonoBehaviour
         if (editButton.GetComponentInChildren<TMP_Text>().text == "Edit")
         {
             editButton.GetComponentInChildren<TMP_Text>().text = "Cancel";
+            // show confirm button
+            confirmButton.SetActive(true);
         }
 
         else if (editButton.GetComponentInChildren<TMP_Text>().text == "Cancel")
         {
             editButton.GetComponentInChildren<TMP_Text>().text = "Edit";
+            // hide confirm button
+            confirmButton.SetActive(false);
         }
 
         // retrieve the text content of the text gameobjects
@@ -387,6 +393,7 @@ public class RetrievingData : MonoBehaviour
         dbReference.Child("currentGoals/" + userId + "/" + key).SetValueAsync(null);
     }
 
+    // IF GOT TIME
     public void GetLeaderboard()
     {
         // reset the variable before retrieving from firebase
@@ -425,6 +432,7 @@ public class RetrievingData : MonoBehaviour
         });
     }
 
+    // IF GOT TIME
     public void UpdateLeaderboard()
     {
         leaderboardPrefab.SetActive(true);
@@ -561,8 +569,11 @@ public class RetrievingData : MonoBehaviour
             }
         });
     }
+
+    // Retrieve mission logs from firebase
     public void RetrieveMissionLogs()
     {
+        // clear mission list before retrieving data
         missionList.Clear();
 
         dbReference.Child("missionLogs/" + userId).GetValueAsync().ContinueWithOnMainThread(task =>
@@ -579,6 +590,7 @@ public class RetrievingData : MonoBehaviour
 
                 if (snapshot.Exists)
                 {
+                    // new datasnapshot for each child in snapshot
                     foreach (DataSnapshot d in snapshot.Children)
                     {
                         MissionLogs mission = JsonUtility.FromJson<MissionLogs>(d.GetRawJsonValue());
@@ -591,6 +603,7 @@ public class RetrievingData : MonoBehaviour
 
                         Debug.LogFormat("content: {0}, status: {1}, name: {2}", mission.missionContent, mission.missionStatus, mission.buildingName);
 
+                        // spawn prefab to display missions in missionArea with reference to credit generation
                         if (mission.missionStatus == "onGoing" || mission.missionStatus == "completed")
                         {
                             if (missionList[1].missionStatus == "onGoing" || missionList[1].missionStatus == "completed")

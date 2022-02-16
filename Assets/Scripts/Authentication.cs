@@ -31,6 +31,7 @@ public class Authentication : MonoBehaviour
 
     private void Awake()
     {
+        // initialise firebase
         auth = FirebaseAuth.DefaultInstance;
         dbReference = FirebaseDatabase.DefaultInstance.RootReference;
     }
@@ -44,6 +45,7 @@ public class Authentication : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // update display error message
         errorLogin.GetComponent<TMP_Text>().text = errorLoginMessage;
         errorSignUp.GetComponent<TMP_Text>().text = errorSignUpMessage;
         errorForgetPassword.GetComponent<TMP_Text>().text = errorForgetPasswordMessage;
@@ -63,10 +65,12 @@ public class Authentication : MonoBehaviour
 
     public void SigningUp()
     {
+        // get relevant data from input fields
         string usernameSignUp = usernameInputSignUp.GetComponent<TMP_InputField>().text;
         string emailSignUp = emailInputSignUp.GetComponent<TMP_InputField>().text;
         string passwordSignUp = passwordInputSignUp.GetComponent<TMP_InputField>().text;
 
+        // make sure that user typed something in username
         if (usernameSignUp == "" || usernameSignUp == " ")
         {
             errorLoginMessage = "";
@@ -74,6 +78,7 @@ public class Authentication : MonoBehaviour
             return;
         }
 
+        // create new account for users
         auth.CreateUserWithEmailAndPasswordAsync(emailSignUp, passwordSignUp).ContinueWith(task =>
         {
             if (task.IsFaulted || task.IsCanceled)
@@ -95,6 +100,7 @@ public class Authentication : MonoBehaviour
 
                 signedUp = true;
 
+                // create necessary data for player
                 CreateNewPlayer(userId, usernameSignUp, email, true);
                 CreatePlayerStats(userId, usernameSignUp, 0, 1, 100, 0);
                 CreateMissionLogs(userId, "mission1", "Create a financial goal", "noAttempt", "Building1");
@@ -103,6 +109,7 @@ public class Authentication : MonoBehaviour
         });
     }
 
+    // create new classes object to run the function in sign up
     void CreateNewPlayer(string uuid, string username, string email, bool active)
     {
         NewPlayer createNewPlayer = new NewPlayer(username, email, active);
@@ -110,6 +117,7 @@ public class Authentication : MonoBehaviour
         dbReference.Child("players/" + uuid).SetRawJsonValueAsync(createNewPlayer.NewPlayerToJson());
     }
 
+    // create new classes object to run the function in sign up
     void CreatePlayerStats(string uuid, string username, int totalBuildingCount, int goalSlotsLeft, int credits, int numberOfGoalsCompleted)
     {
         PlayerStats createPlayerStats = new PlayerStats(username, totalBuildingCount, goalSlotsLeft, credits, numberOfGoalsCompleted);
@@ -117,7 +125,7 @@ public class Authentication : MonoBehaviour
         dbReference.Child("playerStats/" + uuid).SetRawJsonValueAsync(createPlayerStats.PlayerStatsToJson());
     }
 
-
+    // create new classes object to run the function in sign up
     void CreateMissionLogs(string uuid, string missionNumber, string missionContent, string missionStatus, string buildingName)
     {
         MissionLogs createMissionLogs = new MissionLogs(missionContent, missionStatus, buildingName);
@@ -125,6 +133,7 @@ public class Authentication : MonoBehaviour
         dbReference.Child("missionLogs/" + uuid + "/" + missionNumber).SetRawJsonValueAsync(createMissionLogs.MissionLogsToJson());
     }
 
+    // create new classes object to run the function in sign up
     public void LoggingIn()
     {
         string emailLogin = emailInputLogin.GetComponent<TMP_InputField>().text;
@@ -156,6 +165,7 @@ public class Authentication : MonoBehaviour
         });
     }
 
+    // forget password
     public void ForgetPassword()
     {
         string emailForgetPassword = emailInputForgetPassword.GetComponent<TMP_InputField>().text;

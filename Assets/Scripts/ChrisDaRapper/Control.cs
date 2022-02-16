@@ -23,11 +23,9 @@ public class Control : MonoBehaviour
 
     public DatabaseReference dbReference;
 
-    private float totalCredits;
-    private int numBuildings;
-    private int multiplier;
-
     public TMP_Text creditDisplay;
+
+    public AudioSource backgroundMusic;
 
     private void Awake()
     {
@@ -38,12 +36,29 @@ public class Control : MonoBehaviour
         confirmPlacementButton.SetActive(false);
 
         StartCoroutine(EarnMoney());
+
+        backgroundMusic.Play();
         
     }
 
     private void Update()
     {
         creditDisplay.text = RetrievingData.credits.ToString();
+    }
+
+    public void AllowSnapToGrid()
+    {
+        Debug.Log("Allow snap to grid working");
+
+        if (!Shop.mouseClicked)
+        {
+            foreach (BoxCollider boxColider in BuildingDescription.allBoxColliders)
+            {
+                boxColider.enabled = true;
+            }
+
+            Shop.mouseClicked = true;
+        }
     }
 
     public void GetBuildingStuff()
@@ -127,41 +142,6 @@ public class Control : MonoBehaviour
         });
     }
 
-    // private void DeleteBuildingData(float buildingId)
-    // {
-    //     string parentName = "";
-    // 
-    //     dbReference.Child("buildingData/" + Authentication.userId).GetValueAsync().ContinueWithOnMainThread(task => 
-    //     {
-    //         if (task.IsCanceled || task.IsFaulted)
-    //         {
-    //             Debug.LogError("Something went wrong when reading the data, ERROR: " + task.Exception);
-    //             return;
-    //         }
-    // 
-    //         else if (task.IsCompleted)
-    //         {
-    //             DataSnapshot snapshot = task.Result;
-    // 
-    //             var reference = snapshot.Reference;
-    //             string name = reference.Parent.ToString();
-    // 
-    //             if (snapshot.Exists)
-    //             {
-    //                 foreach (var child in snapshot.Children)
-    //                 {
-    //                     if (int.Parse(child.Child("buildingId").Value.ToString()) == buildingId)
-    //                     {
-    //                         parentName = child.Child("buildingId").Reference.Parent.Reference.Parent.ToString();
-    //                     }
-    // 
-    //                     dbReference.Child("buildingData/" + Authentication.userId + "/" + parentName).SetValueAsync(null);
-    //                 }
-    //             }
-    //         }
-    //     });
-    // }
-
     IEnumerator EarnMoney()
     {
         while (true)
@@ -173,11 +153,6 @@ public class Control : MonoBehaviour
                 
                 dbReference.Child("playerStats/" + Authentication.userId + "/credits").SetValueAsync(RetrievingData.credits);
             }
-
-            //else
-            //{
-            //    creditDisplay.text = "Loading";
-            //}
 
             yield return new WaitForSeconds(60f);
         }

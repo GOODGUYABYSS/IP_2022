@@ -30,6 +30,7 @@ public class PostingData : MonoBehaviour
 
     private void Awake()
     {
+        // initialise firebase
         dbReference = FirebaseDatabase.DefaultInstance.RootReference;
     }
 
@@ -48,6 +49,7 @@ public class PostingData : MonoBehaviour
             anotherLoginPostingData = false;
         }
 
+        // check if building is allowed to be saved in firebase
         if (allowDataCreation)
         {
             CreateBuildingData(userId);
@@ -57,6 +59,7 @@ public class PostingData : MonoBehaviour
         // PostingBuildingData();
     }
 
+    // create a new goal
     public void CreateNewGoalButton(GameObject goalPrefab, GameObject inputField1, GameObject inputField2)
     {
         string tempGoal, tempHow;
@@ -75,6 +78,7 @@ public class PostingData : MonoBehaviour
 
             goalSlotsText.GetComponent<TMP_Text>().text = "You can add " + GoalsList.maxNumGoals + " more goals.";
 
+            // if mission 1 is onGoing, update mission to completed and display claim button
             if(RetrievingData.mission1Status == "onGoing")
             {
                 RetrievingData.mission1Status = "completed";
@@ -87,6 +91,7 @@ public class PostingData : MonoBehaviour
         }
     }
 
+    // reference to goals class
     public void CreateNewGoal(string uuid, string goalContent, string howToAchieve)
     {
         Goals createGoals = new Goals(goalContent, howToAchieve);
@@ -96,16 +101,19 @@ public class PostingData : MonoBehaviour
         dbReference.Child("currentGoals/" + uuid + "/" + key).SetRawJsonValueAsync(createGoals.GoalsToJson());
     }
 
+    // update total building count in firebase
     public void UpdateTotalBuildingCount()
     {
         dbReference.Child("playerStats/" + userId + "/totalBuildingCount").SetValueAsync(RetrievingData.totalBuildingCount);
 
         // update leaderboard
-        retrievingData.GetLeaderboard();
+        //retrievingData.GetLeaderboard();
+
         // update timestamp
         UpdatePlayerStatsTimestamp();
     }
 
+    // update credits in firebase
     public void UpdateCredits()
     {
         // takes in new value of money and updates database

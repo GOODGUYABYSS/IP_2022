@@ -318,6 +318,10 @@ public class Shop : MonoBehaviour
         entry.AddComponent<BuildingDescription>();
 
         StartCoroutine(WaitAfterButtonPress());
+
+        // add one more building owned by the player to firebase
+        RetrievingData.totalBuildingCount += 1;
+        postDataThings.UpdateTotalBuildingCount();
     }
 
     IEnumerator WaitAfterButtonPress()

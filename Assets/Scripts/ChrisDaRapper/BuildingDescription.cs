@@ -12,27 +12,14 @@ public class BuildingDescription : MonoBehaviour
 
     public static List<BoxCollider> allBoxColliders = new List<BoxCollider>();
 
-    private void Start()
-    {
-
-    }
-
     public BuildingDescription()
     {
         // This is the BuildingDescription object constructor.
-        // Warning: Only create a BuildingDescription class if it is a component of an existing building game object.
     }
+
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) && !Shop.mouseClicked)
-        {
-            foreach (BoxCollider boxColider in allBoxColliders)
-            {
-                boxColider.enabled = true;
-            }
 
-            Shop.mouseClicked = true;
-        }
     }
 
     // The GenerateBuildingData function stores information about a building as C# built-in variable types so that it can be stored in a save system or Firebase.
