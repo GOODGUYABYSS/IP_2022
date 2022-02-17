@@ -22,9 +22,14 @@ public class KeyboardController : MonoBehaviour
     {
         if (Authentication.loggedIn && allowChangePos)
         {
-            keyboardCanvasStatic.transform.position = new Vector3(-0.44f, 1.229f, 2.024f);
+            // keyboardCanvasStatic.transform.position = new Vector3(-0.44f, 2f, 2.024f);
+            // keyboardCanvas.transform.position = new Vector3(-9.684f, -1.63f, 8.321f);
+            keyboardCanvas.transform.parent.position = new Vector3(-3.38f, 3.174f, -1.298416f);
+
             allowChangePos = false;
-            // keyboardCanvas.transform.rotation = Quaternion.Euler(new Vector3(51.137f, 0, 0));
+            // keyboardCanvasStatic.transform.rotation = Quaternion.Euler(new Vector3(-87.275f, 208.528f, -38.046f));
+            keyboardCanvasStatic.transform.parent.rotation = Quaternion.Euler(new Vector3(51.137f, -88.077f, 0));
+
             // keyboardCanvas.transform.localScale = new Vector3(0.1426f, )
         }
     }
