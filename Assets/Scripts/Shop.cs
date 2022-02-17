@@ -36,15 +36,17 @@ public class Shop : MonoBehaviour
     public GameObject rightHandController;
     public GameObject xrObjects;
 
-    public static bool mouseClicked = true;
+    public static bool mouseClicked = false;
 
     public static Dictionary<string, GameObject> buttonList = new Dictionary<string, GameObject>();
 
     public GameObject buildingSpawnArea;
 
+    public static bool allowBuyBuilding;
+
     private void Start()
     {
-        Debug.Log("Touchscreenkeyboard.isSupported: " + TouchScreenKeyboard.isSupported);
+        
     }
 
     public void DisplayShopItems()
@@ -287,6 +289,7 @@ public class Shop : MonoBehaviour
     public void SpawnItem(GameObject thingToSpawn, int creditGeneration = 0)
     {
         mouseClicked = true;
+        allowBuyBuilding = false;
 
         // GameObject entry = Instantiate(thingToSpawn, position: rightHandController.transform.position, rotation: thingToSpawn.transform.rotation, rightHandController.transform);
         GameObject entry = Instantiate(thingToSpawn, position: buildingSpawnArea.transform.position, rotation: buildingSpawnArea.transform.rotation);
@@ -316,7 +319,6 @@ public class Shop : MonoBehaviour
             throw new System.Exception("Building type does not exist.");
         }
 
-        entry.GetComponent<BoxCollider>().enabled = false;
         entry.AddComponent<BuildingDescription>();
 
         StartCoroutine(WaitAfterButtonPress());

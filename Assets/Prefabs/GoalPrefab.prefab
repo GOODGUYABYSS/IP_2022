@@ -1541,7 +1541,31 @@ MonoBehaviour:
       m_Calls: []
   m_OnSelect:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9008533465853223407, guid: a6d8d4cd39a5c1f46abb7e7c7640f5f8, type: 3}
+        m_TargetAssemblyTypeName: KeyboardController, Assembly-CSharp
+        m_MethodName: SetInputField
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1455239869142001493}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TMP_InputField, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 9008533465853223407, guid: a6d8d4cd39a5c1f46abb7e7c7640f5f8, type: 3}
+        m_TargetAssemblyTypeName: KeyboardController, Assembly-CSharp
+        m_MethodName: TurnOnKeyboard
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnDeselect:
     m_PersistentCalls:
       m_Calls: []
@@ -2071,7 +2095,31 @@ MonoBehaviour:
       m_Calls: []
   m_OnSelect:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9008533465853223407, guid: a6d8d4cd39a5c1f46abb7e7c7640f5f8, type: 3}
+        m_TargetAssemblyTypeName: KeyboardController, Assembly-CSharp
+        m_MethodName: SetInputField
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1455239869399526901}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TMP_InputField, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 9008533465853223407, guid: a6d8d4cd39a5c1f46abb7e7c7640f5f8, type: 3}
+        m_TargetAssemblyTypeName: KeyboardController, Assembly-CSharp
+        m_MethodName: TurnOnKeyboard
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnDeselect:
     m_PersistentCalls:
       m_Calls: []
@@ -2445,8 +2493,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -38.062, y: 62.564}
-  m_SizeDelta: {x: 85.46, y: 20.72}
+  m_AnchoredPosition: {x: 25.778, y: 62.564}
+  m_SizeDelta: {x: 213.14, y: 20.72}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6675467447989455261
 CanvasRenderer:

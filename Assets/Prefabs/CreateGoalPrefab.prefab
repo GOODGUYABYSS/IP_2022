@@ -1180,7 +1180,31 @@ MonoBehaviour:
       m_Calls: []
   m_OnSelect:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9008533465853223407, guid: a6d8d4cd39a5c1f46abb7e7c7640f5f8, type: 3}
+        m_TargetAssemblyTypeName: KeyboardController, Assembly-CSharp
+        m_MethodName: SetInputField
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1455239869142001493}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TMP_InputField, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 9008533465853223407, guid: a6d8d4cd39a5c1f46abb7e7c7640f5f8, type: 3}
+        m_TargetAssemblyTypeName: KeyboardController, Assembly-CSharp
+        m_MethodName: TurnOnKeyboard
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnDeselect:
     m_PersistentCalls:
       m_Calls: []
@@ -1438,7 +1462,31 @@ MonoBehaviour:
       m_Calls: []
   m_OnSelect:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9008533465853223407, guid: a6d8d4cd39a5c1f46abb7e7c7640f5f8, type: 3}
+        m_TargetAssemblyTypeName: KeyboardController, Assembly-CSharp
+        m_MethodName: SetInputField
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1455239869399526901}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TMP_InputField, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 9008533465853223407, guid: a6d8d4cd39a5c1f46abb7e7c7640f5f8, type: 3}
+        m_TargetAssemblyTypeName: KeyboardController, Assembly-CSharp
+        m_MethodName: TurnOnKeyboard
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnDeselect:
     m_PersistentCalls:
       m_Calls: []
@@ -1777,7 +1825,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1357533245235416767}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9008533465853223407, guid: a6d8d4cd39a5c1f46abb7e7c7640f5f8, type: 3}
+        m_TargetAssemblyTypeName: KeyboardController, Assembly-CSharp
+        m_MethodName: TurnOffKeyboard
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &7457332400545120112
 GameObject:
   m_ObjectHideFlags: 0
@@ -2032,7 +2092,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3282457825259085808}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9008533465853223407, guid: a6d8d4cd39a5c1f46abb7e7c7640f5f8, type: 3}
+        m_TargetAssemblyTypeName: KeyboardController, Assembly-CSharp
+        m_MethodName: TurnOffKeyboard
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &9021751337640763700
 GameObject:
   m_ObjectHideFlags: 0

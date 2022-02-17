@@ -17,14 +17,15 @@ public class UIManager : MonoBehaviour
     public GameObject signUp;
     public GameObject signOut;
     public GameObject volume;
+   
 
     [Header("Main UI Interfaces")]    
     public GameObject startButton;
     public GameObject Lucre;
     public GameObject logInInterface;
     public GameObject signUpInterface;
-    public GameObject VolumeInterface;
-    public GameObject SynopsisInterface;
+    public GameObject volumeInterface;
+    public GameObject sypnopsis;
 
 
     [Header("Shop UI")]
@@ -57,6 +58,10 @@ public class UIManager : MonoBehaviour
         var SwipeNext = NextShopItemButton.GetComponent<Button>();
         SwipeNext.onClick.AddListener(() => NextShopItem());
 
+        var CloseTheSypnopsis = sypnopsis.GetComponent<Button>();
+        CloseTheSypnopsis.onClick.AddListener(() => CloseSypnopsis(sypnopsis));
+
+
 
 
     }
@@ -84,7 +89,7 @@ public class UIManager : MonoBehaviour
         signUpInterface.SetActive(true);
         logInInterface.SetActive(false);
         startButton.SetActive(false);
-
+        
     }
 
     public void SignOut()
@@ -101,8 +106,18 @@ public class UIManager : MonoBehaviour
 
     public void ShowSynopsis()
     {
-        
+        sypnopsis.SetActive(true);
+
     }
+
+    public void CloseSypnopsis(GameObject synopsisThing)
+    {
+        Debug.Log("Sypnopsis closing");
+        synopsisThing.SetActive(false);
+        Debug.Log("Sypnopsis closing");
+        logInInterface.SetActive(true);
+    }
+
 
 
 }

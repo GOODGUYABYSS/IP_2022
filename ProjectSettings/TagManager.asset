@@ -13,6 +13,9 @@ TagManager:
   - Building3
   - Building4
   - Building5
+  - Backspace
+  - Space
+  - CapsLock
   layers:
   - Default
   - TransparentFX

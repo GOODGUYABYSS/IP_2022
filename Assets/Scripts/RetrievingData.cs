@@ -51,6 +51,8 @@ public class RetrievingData : MonoBehaviour
     public GameObject goalSlotsText;
     public GameObject goalCompletedText;
 
+    public GameObject keyboard;
+
     private void Awake()
     {
         dbReference = FirebaseDatabase.DefaultInstance.RootReference;
@@ -267,6 +269,8 @@ public class RetrievingData : MonoBehaviour
         if (editButton.GetComponentInChildren<TMP_Text>().text == "Edit")
         {
             editButton.GetComponentInChildren<TMP_Text>().text = "Cancel";
+            keyboard.SetActive(true);
+
             // show confirm button
             confirmButton.SetActive(true);
         }
@@ -274,6 +278,8 @@ public class RetrievingData : MonoBehaviour
         else if (editButton.GetComponentInChildren<TMP_Text>().text == "Cancel")
         {
             editButton.GetComponentInChildren<TMP_Text>().text = "Edit";
+            keyboard.SetActive(false);
+
             // hide confirm button
             confirmButton.SetActive(false);
         }

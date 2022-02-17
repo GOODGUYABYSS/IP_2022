@@ -13,6 +13,7 @@ public class Authentication : MonoBehaviour
     public DatabaseReference dbReference;
 
     public TeleportXRRig teleport;
+    public UIManager UiManager;
     public static string userId;
     public static string email;
 
@@ -20,6 +21,9 @@ public class Authentication : MonoBehaviour
 
     public GameObject signUpUI;
     public GameObject loginUI;
+    public GameObject synopsisThing;
+
+    public bool runOnce = true;
 
     [SerializeField]
     GameObject usernameInputSignUp, emailInputSignUp, passwordInputSignUp, emailInputLogin, passwordInputLogin, emailInputForgetPassword, errorSignUp, errorLogin, errorForgetPassword;
@@ -51,10 +55,14 @@ public class Authentication : MonoBehaviour
         errorSignUp.GetComponent<TMP_Text>().text = errorSignUpMessage;
         errorForgetPassword.GetComponent<TMP_Text>().text = errorForgetPasswordMessage;
 
-        if (signedUp)
+        if (signedUp && runOnce)
         {
             signUpUI.SetActive(false);
-            loginUI.SetActive(true);
+            //Sypnopsis to appear here
+            synopsisThing.SetActive(true);
+
+            runOnce = false;
+
         }
 
         // check if user is logged in
@@ -86,7 +94,7 @@ public class Authentication : MonoBehaviour
             if (task.IsFaulted || task.IsCanceled)
             {
                 // show error
-                Debug.LogError("Sorry, there was an error creating your account, ERROR: " + task.Exception);
+                Debug.Log("Sorry, there was an error creating your account, ERROR: " + task.Exception);
                 test = true;
                 errorLoginMessage = "";
                 errorSignUpMessage = "Please enter a valid email and password.";
@@ -104,7 +112,7 @@ public class Authentication : MonoBehaviour
 
                 // create necessary data for player
                 CreateNewPlayer(userId, usernameSignUp, email, true);
-                CreatePlayerStats(userId, usernameSignUp, 0, 1, 100, 0);
+                CreatePlayerStats(userId, usernameSignUp, 0, 1, 20, 0);
                 CreateMissionLogs(userId, "mission1", "Create a financial goal", "noAttempt", "Building1");
                 CreateMissionLogs(userId, "mission2", "Complete 3 financial goals", "noAttempt", "Building3");
             }
@@ -146,7 +154,7 @@ public class Authentication : MonoBehaviour
             if (task.IsCanceled || task.IsFaulted)
             {
                 // show error
-                Debug.LogError("Sorry, there was an error logging into your account, ERROR: " + task.Exception);
+                Debug.Log("Sorry, there was an error logging into your account, ERROR: " + task.Exception);
                 errorSignUpMessage = "";
                 errorLoginMessage = "Wrong email or password.";
                 return;
@@ -177,14 +185,14 @@ public class Authentication : MonoBehaviour
             if (task.IsCanceled)
             {
                 // send an error
-                Debug.LogError("SendPasswordResetEmailAsync was canceled");
+                Debug.Log("SendPasswordResetEmailAsync was canceled");
                 return;
             }
 
             else if (task.IsFaulted)
             {
                 // send an error
-                Debug.LogError("SendPasswordResetAsync encountered an error " + task.Exception);
+                Debug.Log("SendPasswordResetAsync encountered an error " + task.Exception);
                 errorForgetPasswordMessage = "Please enter a valid email.";
                 return;
             }
@@ -234,6 +242,8 @@ public class Authentication : MonoBehaviour
             ObjectId.allObjectIds.Clear();
 
             GoalsList.maxNumGoals = 0;
+
+            KeyboardController.allowChangePos = true;
 
             Debug.Log("User has been logged out");
         }

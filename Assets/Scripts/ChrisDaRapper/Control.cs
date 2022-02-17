@@ -61,6 +61,11 @@ public class Control : MonoBehaviour
         }
     }
 
+    public void RunKeyBoard()
+    {
+        TouchScreenKeyboard.Open("");
+    }
+
     public void GetBuildingStuff()
     {
         RetrieveBuildingData();
