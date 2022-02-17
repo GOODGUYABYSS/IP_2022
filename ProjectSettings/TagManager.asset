@@ -8,6 +8,11 @@ TagManager:
   - Building 2
   - Building 3
   - Building 4
+  - Building1
+  - Building2
+  - Building3
+  - Building4
+  - Building5
   layers:
   - Default
   - TransparentFX

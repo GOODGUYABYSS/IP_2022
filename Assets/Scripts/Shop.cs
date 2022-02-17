@@ -40,6 +40,13 @@ public class Shop : MonoBehaviour
 
     public static Dictionary<string, GameObject> buttonList = new Dictionary<string, GameObject>();
 
+    public GameObject buildingSpawnArea;
+
+    private void Start()
+    {
+        Debug.Log("Touchscreenkeyboard.isSupported: " + TouchScreenKeyboard.isSupported);
+    }
+
     public void DisplayShopItems()
     {
 
@@ -277,21 +284,16 @@ public class Shop : MonoBehaviour
 
     }
 
-
-
-
     public void SpawnItem(GameObject thingToSpawn, int creditGeneration = 0)
     {
-        // xrObjects.transform.position;
-
         mouseClicked = true;
 
-        GameObject entry = Instantiate(thingToSpawn, position: rightHandController.transform.position, rotation: thingToSpawn.transform.rotation, rightHandController.transform);
+        // GameObject entry = Instantiate(thingToSpawn, position: rightHandController.transform.position, rotation: thingToSpawn.transform.rotation, rightHandController.transform);
+        GameObject entry = Instantiate(thingToSpawn, position: buildingSpawnArea.transform.position, rotation: buildingSpawnArea.transform.rotation);
 
-        entry.transform.localPosition = new Vector3(0, 0, 0);
+        // entry.transform.localPosition = new Vector3(0, 0, 0);
 
         entry.AddComponent<ObjectId>();
-
         ObjectId.CreateObjectId(entry);
 
         entry.GetComponent<ObjectId>().creditGeneration = creditGeneration;

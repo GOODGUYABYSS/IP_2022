@@ -28,6 +28,7 @@ public class Authentication : MonoBehaviour
 
     public static bool loggedIn;
     public static bool signedUp;
+    private bool allowTeleport = true;
 
     private void Awake()
     {
@@ -57,9 +58,10 @@ public class Authentication : MonoBehaviour
         }
 
         // check if user is logged in
-        if (loggedIn)
+        if (loggedIn && allowTeleport)
         {
             teleport.Teleport();
+            allowTeleport = false;
         }
     }
 
