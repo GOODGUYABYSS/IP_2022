@@ -31,10 +31,9 @@ public class Shop : MonoBehaviour
     public GameObject building2;//the building prefab with the turn table script
     public GameObject building3;//the building prefab with the turn table script
     public GameObject building4;//the building prefab with the turn table script
-    // public GameObject building5;//the building prefab with the turn table script
+    public GameObject building5;//the building prefab with the turn table script
 
     public GameObject rightHandController;
-    public GameObject xrObjects;
 
     public static bool mouseClicked = false;
 
@@ -272,6 +271,7 @@ public class Shop : MonoBehaviour
             Debug.Log("PaySomeMoney");
             if (RetrievingData.credits >= Price)
             {
+                SpawnItem(building5);
                 RetrievingData.credits = RetrievingData.credits - Price;
                 GoalsList.maxNumGoals += 1;
                 Debug.Log("How much money you have left:" + RetrievingData.credits);
