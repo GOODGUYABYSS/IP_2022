@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEditorInternal;
 
 public class Shop : MonoBehaviour
 {
@@ -82,8 +81,8 @@ public class Shop : MonoBehaviour
             ShopItemsName[1].text = i.powerUp;
             ShopItemsName[2].text = i.description;
 
-            //Create unity tag layers
-            InternalEditorUtility.AddTag(i.name);
+      
+         
 
             //Assign unity tag layers
             var tag = entry.tag = i.name;
